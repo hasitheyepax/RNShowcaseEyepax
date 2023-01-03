@@ -31,7 +31,7 @@ const Login = (props: Props) => {
     const interpolation = interpolate(
       imagePosition.value,
       [0, 1],
-      [-height / 2, 0]
+      [-height / 2 - 50, 0]
     );
     return {
       transform: [
@@ -51,7 +51,7 @@ const Login = (props: Props) => {
   });
 
   const logoAnimatedStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(imagePosition.value, [0, 1], [100, 0]);
+    const interpolation = interpolate(imagePosition.value, [0, 1], [-100, 0]);
     return {
       opacity: withTiming(imagePosition.value, { duration: 500 }),
       transform: [
@@ -123,14 +123,14 @@ const Login = (props: Props) => {
       </Animated.View>
       <View style={styles.logoContainer}>
         <Animated.View style={logoAnimatedStyle}>
-          <Svg height={200} width={200}>
+          <Svg height={150} width={150}>
             <ClipPath id="clipPathId">
               <Ellipse cx={width / 2} rx={height} ry={height + 100} />
             </ClipPath>
             <Image
               href={require("../../assets/app-icon.png")}
-              width={180}
-              height={180}
+              width={130}
+              height={130}
               preserveAspectRatio="xMidYMid slice"
               clipPath="url(#clipPathId)"
             />
@@ -171,7 +171,7 @@ const Login = (props: Props) => {
             <Pressable
               onPress={() =>
                 (formButtonScale.value = withSequence(
-                  withSpring(1.5),
+                  withSpring(1.25),
                   withSpring(1)
                 ))
               }
@@ -198,17 +198,17 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#810CA8",
-    height: 55,
+    height: 35,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 35,
-    marginHorizontal: 20,
+    marginHorizontal: 60,
     marginVertical: 10,
     borderWidth: 1,
     borderColor: "white",
   },
   buttonText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "600",
     color: "white",
     letterSpacing: 0.5,
@@ -228,11 +228,11 @@ const styles = StyleSheet.create({
   },
   formButton: {
     backgroundColor: "#810CA8",
-    height: 50,
+    height: 35,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 35,
-    marginHorizontal: 20,
+    marginHorizontal: 60,
     marginVertical: 10,
     borderWidth: 1,
     borderColor: "white",
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     height: 180,
     width: width,
     position: "absolute",
-    top: 50,
+    top: 140,
     justifyContent: "center",
     alignItems: "center",
   },
