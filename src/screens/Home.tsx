@@ -19,6 +19,10 @@ const extractItemKey = (item: NoteData) => {
 const Home = (props: Props) => {
   const [data, setData] = useState<NoteData[]>(noteMock);
 
+  const { theme } = useContext(ThemeContext);
+
+  const styles = themeStyles(theme);
+
   const deleteItem = (itemId: any) => {
     const newState = [...data];
     const filteredState = newState.filter((item) => item.id !== itemId);
@@ -36,22 +40,21 @@ const Home = (props: Props) => {
       </View>
     );
   };
-  const { theme } = useContext(ThemeContext);
-
-  const styles = themeStyles(theme);
 
   return (
-    <SwipeableFlatList
-      keyExtractor={extractItemKey}
-      data={data}
-      renderItem={({ item }: { item: NoteData }) => <ListTile item={item} />}
-      maxSwipeDistance={80}
-      renderQuickActions={({ index, item }: { index: any; item: NoteData }) =>
-        QuickActions(index, item)
-      }
-      contentContainerStyle={styles.contentContainerStyle}
-      shouldBounceOnMount={true}
-    />
+    <View style={styles.container}>
+      <SwipeableFlatList
+        keyExtractor={extractItemKey}
+        data={data}
+        renderItem={({ item }: { item: NoteData }) => <ListTile item={item} />}
+        maxSwipeDistance={80}
+        renderQuickActions={({ index, item }: { index: any; item: NoteData }) =>
+          QuickActions(index, item)
+        }
+        contentContainerStyle={styles.contentContainerStyle}
+        shouldBounceOnMount={true}
+      />
+    </View>
   );
 };
 
@@ -59,10 +62,14 @@ export default Home;
 
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
+    container: {
+      backgroundColor: theme.colors.background,
+    },
     qaContainer: {
       flex: 1,
       flexDirection: "row",
       justifyContent: "flex-end",
+      backgroundColor: theme.colors.background,
     },
     button: {
       width: "80%",
@@ -85,5 +92,7 @@ const themeStyles = (theme: theme) =>
     },
     contentContainerStyle: {
       flexGrow: 1,
+      backgroundColor: theme.colors.background,
+      paddingBottom: 10,
     },
   });

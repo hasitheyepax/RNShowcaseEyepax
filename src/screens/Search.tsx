@@ -1,11 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
+import { theme } from "../config/colors";
+import ThemeContext from "../contexts/themeContext";
 
 type Props = {};
 
 const Search = (props: Props) => {
+  const { theme } = useContext(ThemeContext);
+
+  const styles = themeStyles(theme);
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Search</Text>
     </View>
   );
@@ -13,4 +19,10 @@ const Search = (props: Props) => {
 
 export default Search;
 
-const styles = StyleSheet.create({});
+const themeStyles = (theme: theme) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: theme.colors.background,
+      flex: 1,
+    },
+  });
