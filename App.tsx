@@ -1,12 +1,13 @@
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import { Provider } from "react-redux";
-import { store } from "./src/redux/store";
+import { persistedStore, store } from "./src/redux/store";
 import { NavigationContainer } from "@react-navigation/native";
 import Primary from "./src/navigation/Primary";
 import { useEffect, useState } from "react";
 import { darkTheme, lightTheme, theme } from "./src/config/colors";
 import ThemeContext from "./src/contexts/themeContext";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -25,12 +26,14 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <ThemeContext.Provider value={themeValue}>
-        <NavigationContainer>
-          <Primary />
-          <StatusBar style="auto" />
-        </NavigationContainer>
-      </ThemeContext.Provider>
+      <PersistGate loading={null} persistor={persistedStore}>
+        <ThemeContext.Provider value={themeValue}>
+          <NavigationContainer>
+            <Primary />
+            <StatusBar style="auto" />
+          </NavigationContainer>
+        </ThemeContext.Provider>
+      </PersistGate>
     </Provider>
   );
 }
