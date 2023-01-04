@@ -51,7 +51,7 @@ const Login = (props: Props) => {
   });
 
   const logoAnimatedStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(imagePosition.value, [0, 1], [-100, 0]);
+    const interpolation = interpolate(imagePosition.value, [0, 1], [-width, 0]);
     return {
       opacity: withTiming(imagePosition.value, { duration: 500 }),
       transform: [
@@ -114,13 +114,17 @@ const Login = (props: Props) => {
             clipPath="url(#clipPathId)"
           />
         </Svg>
-
+      </Animated.View>
+      <Pressable
+        style={{ zIndex: 100 }}
+        onPress={() => (imagePosition.value = 1)}
+      >
         <Animated.View
           style={[styles.closeButtonContainer, closeButtonContainerStyle]}
         >
-          <Text onPress={() => (imagePosition.value = 1)}>X</Text>
+          <Text>X</Text>
         </Animated.View>
-      </Animated.View>
+      </Pressable>
       <View style={styles.logoContainer}>
         <Animated.View style={logoAnimatedStyle}>
           <Svg height={150} width={150}>
