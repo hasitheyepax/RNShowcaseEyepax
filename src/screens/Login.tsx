@@ -6,6 +6,9 @@ import {
   Dimensions,
   TextInput,
   Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from "react-native";
 import Svg, { Image, Ellipse, ClipPath } from "react-native-svg";
 import Animated, {
@@ -105,94 +108,102 @@ const Login = (props: Props) => {
   };
 
   return (
-    <Animated.View style={styles.container}>
-      <Animated.View style={[StyleSheet.absoluteFill, imageAnimatedStyle]}>
-        <Svg height={height + 100} width={width}>
-          <ClipPath id="clipPathId">
-            <Ellipse cx={width / 2} rx={height} ry={height + 100} />
-          </ClipPath>
-          <Image
-            href={require("../../assets/login-background.jpg")}
-            width={width + 100}
-            height={height + 100}
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#clipPathId)"
-          />
-        </Svg>
-      </Animated.View>
-      <Pressable
-        style={{ zIndex: 100 }}
-        onPress={() => (imagePosition.value = 1)}
-      >
-        <Animated.View
-          style={[styles.closeButtonContainer, closeButtonContainerStyle]}
-        >
-          <Text>X</Text>
-        </Animated.View>
-      </Pressable>
-      <View style={styles.logoContainer}>
-        <Animated.View style={logoAnimatedStyle}>
-          <Svg height={150} width={150}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <Animated.View style={styles.container}>
+        <Animated.View style={[StyleSheet.absoluteFill, imageAnimatedStyle]}>
+          <Svg height={height + 100} width={width}>
             <ClipPath id="clipPathId">
               <Ellipse cx={width / 2} rx={height} ry={height + 100} />
             </ClipPath>
             <Image
-              href={require("../../assets/app-icon.png")}
-              width={130}
-              height={130}
+              href={require("../../assets/login-background.jpg")}
+              width={width + 100}
+              height={height + 100}
               preserveAspectRatio="xMidYMid slice"
               clipPath="url(#clipPathId)"
             />
           </Svg>
         </Animated.View>
-      </View>
+        <Pressable
+          style={{ zIndex: 100 }}
+          onPress={() => {
+            imagePosition.value = 1;
+            Keyboard.dismiss();
+          }}
+        >
+          <Animated.View
+            style={[styles.closeButtonContainer, closeButtonContainerStyle]}
+          >
+            <Text>X</Text>
+          </Animated.View>
+        </Pressable>
+        <View style={styles.logoContainer}>
+          <Animated.View style={logoAnimatedStyle}>
+            <Svg height={150} width={150}>
+              <ClipPath id="clipPathId">
+                <Ellipse cx={width / 2} rx={height} ry={height + 100} />
+              </ClipPath>
+              <Image
+                href={require("../../assets/app-icon.png")}
+                width={130}
+                height={130}
+                preserveAspectRatio="xMidYMid slice"
+                clipPath="url(#clipPathId)"
+              />
+            </Svg>
+          </Animated.View>
+        </View>
 
-      <View style={styles.bottomContainer}>
-        <Animated.View style={buttonsAnimatedStyle}>
-          <Pressable style={styles.button} onPress={loginHandler}>
-            <Text style={styles.buttonText}>LOG IN</Text>
-          </Pressable>
-        </Animated.View>
-        <Animated.View style={buttonsAnimatedStyle}>
-          <Pressable style={styles.button} onPress={registerHandler}>
-            <Text style={styles.buttonText}>REGISTER</Text>
-          </Pressable>
-        </Animated.View>
-        <Animated.View style={[styles.formInputContainer, formAnimatedStyle]}>
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor="black"
-            style={styles.textInput}
-          />
-          {isRegistering && (
+        <View style={styles.bottomContainer}>
+          <Animated.View style={buttonsAnimatedStyle}>
+            <Pressable style={styles.button} onPress={loginHandler}>
+              <Text style={styles.buttonText}>LOG IN</Text>
+            </Pressable>
+          </Animated.View>
+          <Animated.View style={buttonsAnimatedStyle}>
+            <Pressable style={styles.button} onPress={registerHandler}>
+              <Text style={styles.buttonText}>REGISTER</Text>
+            </Pressable>
+          </Animated.View>
+          <Animated.View style={[styles.formInputContainer, formAnimatedStyle]}>
             <TextInput
-              placeholder="Full Name"
+              placeholder="Email"
               placeholderTextColor="black"
               style={styles.textInput}
             />
-          )}
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor="black"
-            style={styles.textInput}
-          />
-          <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
-            <Pressable
-              onPress={() =>
-                (formButtonScale.value = withSequence(
-                  withSpring(1.25),
-                  withSpring(1)
-                ))
-              }
-            >
-              <Text style={styles.buttonText}>
-                {isRegistering ? "REGISTER" : "LOG IN"}
-              </Text>
-            </Pressable>
+            {isRegistering && (
+              <TextInput
+                placeholder="Full Name"
+                placeholderTextColor="black"
+                style={styles.textInput}
+              />
+            )}
+            <TextInput
+              placeholder="Password"
+              placeholderTextColor="black"
+              style={styles.textInput}
+            />
+            <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
+              <Pressable
+                onPress={() =>
+                  (formButtonScale.value = withSequence(
+                    withSpring(1.25),
+                    withSpring(1)
+                  ))
+                }
+              >
+                <Text style={styles.buttonText}>
+                  {isRegistering ? "REGISTER" : "LOG IN"}
+                </Text>
+              </Pressable>
+            </Animated.View>
           </Animated.View>
-        </Animated.View>
-      </View>
-    </Animated.View>
+        </View>
+      </Animated.View>
+    </KeyboardAvoidingView>
   );
 };
 
