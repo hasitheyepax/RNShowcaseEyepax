@@ -12,6 +12,7 @@ import {
   Alert,
 } from "react-native";
 
+//@ts-ignore
 import SwipeableFlatList from "react-native-swipeable-list";
 import NoteData from "../interfaces/NoteData";
 import ThemeContext from "../contexts/themeContext";
