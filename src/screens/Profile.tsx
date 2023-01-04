@@ -1,11 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
+import { theme } from "../config/colors";
+import ThemeContext from "../contexts/themeContext";
 
 type Props = {};
 
 const Profile = (props: Props) => {
+  const { theme } = useContext(ThemeContext);
+
+  const styles = themeStyles(theme);
+
   return (
-    <View>
+    <View style={styles.container}>
       <Text>Profile</Text>
     </View>
   );
@@ -13,4 +19,10 @@ const Profile = (props: Props) => {
 
 export default Profile;
 
-const styles = StyleSheet.create({});
+const themeStyles = (theme: theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+  });
