@@ -114,14 +114,17 @@ const Login = (props: Props) => {
             clipPath="url(#clipPathId)"
           />
         </Svg>
-        <Pressable onPress={() => (imagePosition.value = 1)}>
-          <Animated.View
-            style={[styles.closeButtonContainer, closeButtonContainerStyle]}
-          >
-            <Text>X</Text>
-          </Animated.View>
-        </Pressable>
       </Animated.View>
+      <Pressable
+        style={{ zIndex: 100 }}
+        onPress={() => (imagePosition.value = 1)}
+      >
+        <Animated.View
+          style={[styles.closeButtonContainer, closeButtonContainerStyle]}
+        >
+          <Text>X</Text>
+        </Animated.View>
+      </Pressable>
       <View style={styles.logoContainer}>
         <Animated.View style={logoAnimatedStyle}>
           <Svg height={150} width={150}>
