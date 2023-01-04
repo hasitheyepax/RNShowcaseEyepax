@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { darkTheme, lightTheme, theme } from "./src/config/colors";
 import ThemeContext from "./src/contexts/themeContext";
 import { PersistGate } from "redux-persist/integration/react";
+import Toast from "react-native-toast-message";
 
 export default function App() {
   const colorScheme = useColorScheme();
@@ -34,6 +35,7 @@ export default function App() {
           </NavigationContainer>
         </ThemeContext.Provider>
       </PersistGate>
+      <Toast />
     </Provider>
   );
 }

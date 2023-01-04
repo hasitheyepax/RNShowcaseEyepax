@@ -23,15 +23,24 @@ import Animated, {
 } from "react-native-reanimated";
 import { theme } from "../config/colors";
 import ThemeContext from "../contexts/themeContext";
+import { user } from "../config/types/user";
+import { addUser, clearAsyncStorage, getUsers } from "../helpers/asyncStorage";
+import Toast from "react-native-toast-message";
 
 type Props = {};
 
 const Login = (props: Props) => {
+  const { theme } = useContext(ThemeContext);
   const { height, width } = Dimensions.get("window");
   const imagePosition = useSharedValue(1);
   const formButtonScale = useSharedValue(1);
   const [isRegistering, setIsRegistering] = useState(false);
-  const { theme } = useContext(ThemeContext);
+
+  const [inputs, setInputs] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+  });
 
   const styles = themeStyles(theme);
 
@@ -107,6 +116,59 @@ const Login = (props: Props) => {
     }
   };
 
+  const handleRegister = async () => {
+    const { email, fullName, password } = inputs;
+    if (!email || !fullName || !password) {
+      Toast.show({
+        type: "error",
+        text1: "Please fill all fields",
+        text2: "Email, Full Name and Password are required!",
+      });
+    } else {
+      const user: user = {
+        email,
+        fullName,
+        password,
+      };
+      await addUser(user);
+      Toast.show({
+        type: "success",
+        text1: "User registration successful",
+        text2: "Please login again",
+      });
+    }
+  };
+  const handleLogin = async () => {
+    const { email, password } = inputs;
+    const users = await getUsers();
+    if (!email || !password) {
+      if (!users) {
+        Toast.show({
+          type: "error",
+          text1: "Please fill both fields",
+          text2: "Email and Password are required!",
+        });
+      }
+    } else {
+      if (!users) {
+        Toast.show({
+          type: "error",
+          text1: "No users found",
+          text2: "Please register a user first!",
+        });
+      } else {
+        const user = users.find((e) => {
+          return e.email === email;
+        });
+        if (user?.password === password) {
+          console.log("Login approved");
+        } else {
+          console.log("login failed");
+        }
+      }
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -132,6 +194,11 @@ const Login = (props: Props) => {
           onPress={() => {
             imagePosition.value = 1;
             Keyboard.dismiss();
+            setInputs({
+              email: "",
+              fullName: "",
+              password: "",
+            });
           }}
         >
           <Animated.View
@@ -173,33 +240,62 @@ const Login = (props: Props) => {
               placeholder="Email"
               placeholderTextColor="black"
               style={styles.textInput}
+              value={inputs.email}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  email: text,
+                });
+              }}
             />
             {isRegistering && (
               <TextInput
                 placeholder="Full Name"
                 placeholderTextColor="black"
                 style={styles.textInput}
+                value={inputs.fullName}
+                onChangeText={(text) => {
+                  setInputs({
+                    ...inputs,
+                    fullName: text,
+                  });
+                }}
               />
             )}
             <TextInput
               placeholder="Password"
               placeholderTextColor="black"
               style={styles.textInput}
+              value={inputs.password}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  password: text,
+                });
+              }}
+              secureTextEntry
             />
-            <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
-              <Pressable
-                onPress={() =>
-                  (formButtonScale.value = withSequence(
-                    withSpring(1.25),
-                    withSpring(1)
-                  ))
+            <Pressable
+              onPress={() => {
+                formButtonScale.value = withSequence(
+                  withSpring(1.05, { damping: 1, overshootClamping: true }),
+                  withSpring(1, { damping: 1, overshootClamping: true })
+                );
+                if (isRegistering) {
+                  handleRegister();
+                } else {
+                  handleLogin();
                 }
+              }}
+            >
+              <Animated.View
+                style={[styles.formButton, formButtonAnimatedStyle]}
               >
                 <Text style={styles.buttonText}>
                   {isRegistering ? "REGISTER" : "LOG IN"}
                 </Text>
-              </Pressable>
-            </Animated.View>
+              </Animated.View>
+            </Pressable>
           </Animated.View>
         </View>
       </Animated.View>
