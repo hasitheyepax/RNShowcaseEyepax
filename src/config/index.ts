@@ -5,3 +5,5 @@ export enum Navigation {
   search = "SEARCH",
   settings = "SETTINGS",
 }
+
+export const ASYNC_KEY = "@EPXRNSHWC";
