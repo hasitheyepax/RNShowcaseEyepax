@@ -1,7 +1,7 @@
 import ListTile from "../components/ListTile";
 import noteMock from "../mocks/notesMock";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import React, { useEffect, useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,6 +14,8 @@ import {
 
 import SwipeableFlatList from "react-native-swipeable-list";
 import NoteData from "../interfaces/NoteData";
+import ThemeContext from "../contexts/themeContext";
+import { theme } from "../config/colors";
 
 type Props = {};
 
@@ -41,6 +43,9 @@ const Home = (props: Props) => {
       </View>
     );
   };
+  const { theme } = useContext(ThemeContext);
+
+  const styles = themeStyles(theme);
 
   return (
     <SwipeableFlatList
@@ -59,32 +64,33 @@ const Home = (props: Props) => {
 
 export default Home;
 
-const styles = StyleSheet.create({
-  qaContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  button: {
-    width: "80%",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    backgroundColor: "#E5B8F4",
-    height: 150,
-    marginVertical: 5,
-    marginRight: 10,
-    borderRadius: 10,
-    opacity: 0.7,
-  },
-  buttonText: {
-    fontWeight: "bold",
-    opacity: 1,
-    marginRight: 10,
-  },
-  button3Text: {
-    color: "red",
-  },
-  contentContainerStyle: {
-    flexGrow: 1,
-  },
-});
+const themeStyles = (theme: theme) =>
+  StyleSheet.create({
+    qaContainer: {
+      flex: 1,
+      flexDirection: "row",
+      justifyContent: "flex-end",
+    },
+    button: {
+      width: "80%",
+      alignItems: "flex-end",
+      justifyContent: "center",
+      backgroundColor: "#E5B8F4",
+      height: 150,
+      marginVertical: 5,
+      marginRight: 10,
+      borderRadius: 10,
+      opacity: 0.7,
+    },
+    buttonText: {
+      fontWeight: "bold",
+      opacity: 1,
+      marginRight: 10,
+    },
+    button3Text: {
+      color: "red",
+    },
+    contentContainerStyle: {
+      flexGrow: 1,
+    },
+  });
