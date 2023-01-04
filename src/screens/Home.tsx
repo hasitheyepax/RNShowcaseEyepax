@@ -2,15 +2,7 @@ import ListTile from "../components/ListTile";
 import noteMock from "../mocks/notesMock";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import React, { useState, useContext } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  View,
-  Text,
-  StatusBar,
-  Pressable,
-  Alert,
-} from "react-native";
+import { StyleSheet, View, Text, Pressable } from "react-native";
 
 //@ts-ignore
 import SwipeableFlatList from "react-native-swipeable-list";

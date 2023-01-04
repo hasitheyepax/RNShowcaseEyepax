@@ -26,10 +26,13 @@ import ThemeContext from "../contexts/themeContext";
 import { user } from "../config/types/user";
 import { addUser, clearAsyncStorage, getUsers } from "../helpers/asyncStorage";
 import Toast from "react-native-toast-message";
+import { useAppDispatch } from "../redux/hooks";
+import { login } from "../redux/slices/authSlice";
 
 type Props = {};
 
 const Login = (props: Props) => {
+  const dispatch = useAppDispatch();
   const { theme } = useContext(ThemeContext);
   const { height, width } = Dimensions.get("window");
   const imagePosition = useSharedValue(1);
@@ -161,9 +164,13 @@ const Login = (props: Props) => {
           return e.email === email;
         });
         if (user?.password === password) {
-          console.log("Login approved");
+          dispatch(login());
         } else {
-          console.log("login failed");
+          Toast.show({
+            type: "error",
+            text1: "Invalid credentials",
+            text2: "Please check your email and password",
+          });
         }
       }
     }
