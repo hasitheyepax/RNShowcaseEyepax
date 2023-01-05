@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
-import NoteData from "../interfaces/NoteData";
+import { note } from "../config/types/note";
 import { theme } from "../config/colors";
 import ThemeContext from "../contexts/themeContext";
 import { useContext } from "react";
 
-export default function ListTile({ item }: { item: NoteData }) {
+export default function ListTile({ item }: { item: note }) {
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);

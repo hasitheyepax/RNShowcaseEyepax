@@ -1,6 +1,6 @@
-import NoteData from "../interfaces/NoteData";
+import { note } from "../config/types/note";
 
-const noteMock: NoteData[] = [
+const noteMock: note[] = [
   {
     id: "1",
     title: "Note 1",
