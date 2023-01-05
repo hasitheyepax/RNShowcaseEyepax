@@ -75,20 +75,19 @@ const themeStyles = (theme: theme) =>
       width: "80%",
       alignItems: "flex-end",
       justifyContent: "center",
-      backgroundColor: "#E5B8F4",
+      backgroundColor: "red",
       height: 150,
       marginVertical: 5,
       marginRight: 10,
       borderRadius: 10,
-      opacity: 0.7,
+      opacity: 0.8,
     },
     buttonText: {
       fontWeight: "bold",
-      opacity: 1,
       marginRight: 10,
     },
     button3Text: {
-      color: "red",
+      color: theme.colors.rawText,
     },
     contentContainerStyle: {
       flexGrow: 1,
