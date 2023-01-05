@@ -81,6 +81,7 @@ const themeStyles = (theme: theme) =>
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
+      backgroundColor: theme.colors.background,
     },
     header: {
       height: "50%",
