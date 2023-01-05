@@ -18,7 +18,7 @@ export const darkTheme: theme = {
     card: "#C148E8",
     text: "#E5B7F5",
     rawText: "#FFF",
-    background: "#FFF",
+    background: "#82AAE3",
   },
 };
 export const lightTheme: theme = {
