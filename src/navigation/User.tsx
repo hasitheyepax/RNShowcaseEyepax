@@ -43,7 +43,7 @@ const User = () => {
             />
           ),
         }}
-        name="Chat"
+        name="Search"
         component={Search}
       />
       <BottomTabs.Screen
@@ -58,7 +58,7 @@ const User = () => {
             />
           ),
         }}
-        name="Upload"
+        name="Profile"
         component={Profile}
       />
       <BottomTabs.Screen
