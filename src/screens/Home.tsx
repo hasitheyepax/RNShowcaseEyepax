@@ -1,6 +1,6 @@
 import ListTile from "../components/ListTile";
 import noteMock from "../mocks/notesMock";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
   Alert,
   TextInput,
   Image,
+  SafeAreaView,
 } from "react-native";
 
 //@ts-ignore
@@ -34,6 +35,16 @@ const Home = (props: Props) => {
 
   const styles = themeStyles(theme);
 
+  const Header: React.FC = () => {
+    return (
+      <View style={styles.headerContainer}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{`Home`}</Text>
+        </View>
+      </View>
+    );
+  };
+
   const deleteItem = (itemId: any) => {
     const newState = [...data];
     const filteredState = newState.filter((item) => item.id !== itemId);
@@ -52,100 +63,127 @@ const Home = (props: Props) => {
     );
   };
 
-  return (
-    <View style={styles.container}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalImageContainer}>
-            <Image
-              source={require("../../assets/employee.png")}
-              style={styles.imageCamera}
-            />
-          </View>
-          <View style={styles.modalView}>
-            {editMode ? (
-              <View style={styles.modalDetailContent}>
-                <TextInput
-                  placeholder="Title"
-                  placeholderTextColor="black"
-                  style={styles.textInput}
-                  value={selectedData?.title}
-                  onChangeText={(text) => {
-                    const tempData: note = {
-                      id: selectedData?.id,
-                      title: text,
-                      date: selectedData?.date,
-                      description: selectedData?.description,
-                      time: selectedData?.time,
-                    };
-                    setSelectedData(tempData);
-                  }}
-                />
-              </View>
-            ) : (
-              <View style={styles.modalDetailContent}>
-                <Text style={styles.modalTitleText}>{selectedData?.title}</Text>
-                <Text style={styles.modalDescriptionText}>
-                  {selectedData?.description}
-                </Text>
-                <View style={styles.modalDateTimeContainer}>
-                  <Text
-                    style={styles.modalDateTimeText}
-                  >{`${selectedData?.time}  ,  ${selectedData?.date}`}</Text>
+  const HomeContent = () => {
+    return (
+      <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
+            setModalVisible(!modalVisible);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalImageContainer}>
+              <Image
+                source={require("../../assets/employee.png")}
+                style={styles.imageCamera}
+              />
+            </View>
+            <View style={styles.modalView}>
+              {editMode ? (
+                <View style={styles.modalDetailContent}>
+                  <TextInput
+                    placeholder="Title"
+                    placeholderTextColor="black"
+                    style={styles.textInput}
+                    value={selectedData?.title}
+                    onChangeText={(text) => {
+                      const tempData: note = {
+                        id: selectedData?.id,
+                        title: text,
+                        date: selectedData?.date,
+                        description: selectedData?.description,
+                        time: selectedData?.time,
+                      };
+                      setSelectedData(tempData);
+                    }}
+                  />
+                  <TextInput
+                    placeholder="Description"
+                    placeholderTextColor="black"
+                    style={styles.textInput}
+                    value={selectedData?.description}
+                    onChangeText={(text) => {
+                      const tempData: note = {
+                        id: selectedData?.id,
+                        title: selectedData?.title,
+                        date: selectedData?.date,
+                        description: text,
+                        time: selectedData?.time,
+                      };
+                      setSelectedData(tempData);
+                    }}
+                  />
                 </View>
+              ) : (
+                <View style={styles.modalDetailContent}>
+                  <Text style={styles.modalTitleText}>
+                    {selectedData?.title}
+                  </Text>
+                  <Text style={styles.modalDescriptionText}>
+                    {selectedData?.description}
+                  </Text>
+                  <View style={styles.modalDateTimeContainer}>
+                    <Text
+                      style={styles.modalDateTimeText}
+                    >{`${selectedData?.time}  ,  ${selectedData?.date}`}</Text>
+                  </View>
+                </View>
+              )}
+              <View style={styles.modalButtonContainer}>
+                <Pressable
+                  style={[styles.buttonModal, styles.buttonClose]}
+                  onPress={() => setEditMode(!editMode)}
+                >
+                  <Text style={styles.textStyle}>
+                    {!editMode ? "Edit" : "Save"}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.buttonModal, styles.buttonClose]}
+                  onPress={() => {
+                    setModalVisible(!modalVisible);
+                    setEditMode(false);
+                  }}
+                >
+                  <Text style={styles.textStyle}>Close</Text>
+                </Pressable>
               </View>
-            )}
-            <View style={styles.modalButtonContainer}>
-              <Pressable
-                style={[styles.buttonModal, styles.buttonClose]}
-                onPress={() => setEditMode(!editMode)}
-              >
-                <Text style={styles.textStyle}>
-                  {!editMode ? "Edit" : "Save"}
-                </Text>
-              </Pressable>
-              <Pressable
-                style={[styles.buttonModal, styles.buttonClose]}
-                onPress={() => {
-                  setModalVisible(!modalVisible);
-                  setEditMode(false);
-                }}
-              >
-                <Text style={styles.textStyle}>Close</Text>
-              </Pressable>
             </View>
           </View>
-        </View>
-      </Modal>
-      <SwipeableFlatList
-        keyExtractor={extractItemKey}
-        data={data}
-        renderItem={({ item }: { item: note }) => (
-          <Pressable
-            onPress={() => {
-              setSelectedData(item);
-              setModalVisible(!modalVisible);
-            }}
-          >
-            <ListTile item={item} />
-          </Pressable>
-        )}
-        maxSwipeDistance={80}
-        renderQuickActions={({ index, item }: { index: any; item: note }) =>
-          QuickActions(index, item)
-        }
-        contentContainerStyle={styles.contentContainerStyle}
-        shouldBounceOnMount={true}
-      />
-    </View>
+        </Modal>
+        <SwipeableFlatList
+          keyExtractor={extractItemKey}
+          data={data}
+          renderItem={({ item }: { item: note }) => (
+            <Pressable
+              onPress={() => {
+                setSelectedData(item);
+                setModalVisible(!modalVisible);
+              }}
+            >
+              <ListTile item={item} />
+            </Pressable>
+          )}
+          maxSwipeDistance={80}
+          renderQuickActions={({ index, item }: { index: any; item: note }) =>
+            QuickActions(index, item)
+          }
+          contentContainerStyle={styles.contentContainerStyle}
+          shouldBounceOnMount={true}
+        />
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.wrapper}>
+      <Header />
+      <HomeContent />
+    </SafeAreaView>
   );
 };
 
@@ -156,6 +194,28 @@ const themeStyles = (theme: theme) =>
     container: {
       backgroundColor: theme.colors.background,
     },
+    wrapper: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    headerContainer: {
+      marginTop: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      // flex: 1,
+      // backgroundColor: "red",
+      height: 70,
+    },
+    headerTextContainer: {
+      // flex: 1,
+      // backgroundColor: "blue",
+    },
+    headerText: {
+      fontSize: 20,
+      fontWeight: "300",
+      color: theme.colors.rawText,
+    },
+
     qaContainer: {
       flex: 1,
       flexDirection: "row",
@@ -194,7 +254,7 @@ const themeStyles = (theme: theme) =>
     },
     modalView: {
       margin: 20,
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.card,
       top: -70,
       borderRadius: 20,
       padding: 35,
@@ -215,12 +275,26 @@ const themeStyles = (theme: theme) =>
       elevation: 2,
       marginHorizontal: 25,
       width: 100,
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 20,
+      height: 40,
+      marginVertical: 10,
+      borderWidth: 1,
+      borderColor: theme.colors.rawText,
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
     },
     buttonOpen: {
       backgroundColor: "#F194FF",
     },
     buttonClose: {
-      backgroundColor: "#2196F3",
+      backgroundColor: theme.colors.secondary,
     },
     textStyle: {
       color: "white",
@@ -239,7 +313,7 @@ const themeStyles = (theme: theme) =>
       marginVertical: 10,
       borderRadius: 25,
       paddingLeft: 10,
-      width: 200,
+      width: 240,
     },
     modalButtonContainer: {
       flexDirection: "row",

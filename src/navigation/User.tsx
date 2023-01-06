@@ -35,6 +35,7 @@ const User = () => {
             />
           ),
           headerStyle: styles.header,
+          headerShown: false,
         }}
         name="Home"
         component={Home}
@@ -51,6 +52,7 @@ const User = () => {
             />
           ),
           headerStyle: styles.header,
+          headerShown: false,
         }}
         name="Search"
         component={Search}
@@ -67,6 +69,7 @@ const User = () => {
             />
           ),
           headerStyle: styles.header,
+          headerShown: false,
         }}
         name="Profile"
         component={Profile}
