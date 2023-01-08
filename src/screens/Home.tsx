@@ -1,6 +1,6 @@
 import ListTile from "../components/ListTile";
 import noteMock from "../mocks/notesMock";
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -18,22 +18,40 @@ import SwipeableFlatList from "react-native-swipeable-list";
 import { note } from "../config/types/note";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
+import { todos } from "../config/types/todos";
+import todoMock from "../mocks/todosMock";
+import TodoTile from "../components/TodoTile";
+import { commonListTodo } from "../config/types/commonListTodo";
 
 type Props = {};
 
-const extractItemKey = (item: note) => {
-  return item.id?.toString();
+const extractItemKey = (item: commonListTodo) => {
+  return item.item.id?.toString();
 };
 
 const Home = (props: Props) => {
-  const [data, setData] = useState<note[]>(noteMock);
+  const [data, setData] = useState<commonListTodo[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedData, setSelectedData] = useState<note>();
+  const [selectedData, setSelectedData] = useState<commonListTodo>();
   const [editMode, setEditMode] = useState(false);
 
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);
+
+  useEffect(() => {
+    let notes: commonListTodo[] = [];
+    let todos: commonListTodo[] = [];
+    for (let i = 0; i < noteMock.length; i++) {
+      let tempNote: commonListTodo = { itemType: "note", item: noteMock[i] };
+      notes.push(tempNote);
+    }
+    for (let i = 0; i < todoMock.length; i++) {
+      let tempTodo: commonListTodo = { itemType: "todo", item: todoMock[i] };
+      todos.push(tempTodo);
+    }
+    setData([...notes, ...todos]);
+  }, []);
 
   const Header: React.FC = () => {
     return (
@@ -47,15 +65,15 @@ const Home = (props: Props) => {
 
   const deleteItem = (itemId: any) => {
     const newState = [...data];
-    const filteredState = newState.filter((item) => item.id !== itemId);
+    const filteredState = newState.filter((item) => item.item.id !== itemId);
     return setData(filteredState);
   };
 
-  const QuickActions = (index: any, qaItem: note) => {
+  const QuickActions = (index: any, qaItem: commonListTodo) => {
     return (
       <View style={styles.qaContainer}>
         <View style={[styles.button]}>
-          <Pressable onPress={() => deleteItem(qaItem.id)}>
+          <Pressable onPress={() => deleteItem(qaItem.item.id)}>
             <Text style={[styles.buttonText, styles.button3Text]}>Delete</Text>
           </Pressable>
         </View>
@@ -89,47 +107,47 @@ const Home = (props: Props) => {
                     placeholder="Title"
                     placeholderTextColor="black"
                     style={styles.textInput}
-                    value={selectedData?.title}
+                    value={selectedData?.item.title}
                     onChangeText={(text) => {
                       const tempData: note = {
-                        id: selectedData?.id,
+                        id: selectedData?.item.id,
                         title: text,
-                        date: selectedData?.date,
-                        description: selectedData?.description,
-                        time: selectedData?.time,
+                        date: selectedData?.item.date,
+                        description: selectedData?.item.description,
+                        time: selectedData?.item?.time,
                       };
-                      setSelectedData(tempData);
+                      setSelectedData({ item: tempData, itemType: "note" });
                     }}
                   />
                   <TextInput
                     placeholder="Description"
                     placeholderTextColor="black"
                     style={styles.textInput}
-                    value={selectedData?.description}
+                    value={selectedData?.item?.description}
                     onChangeText={(text) => {
                       const tempData: note = {
-                        id: selectedData?.id,
-                        title: selectedData?.title,
-                        date: selectedData?.date,
+                        id: selectedData?.item.id,
+                        title: selectedData?.item.title,
+                        date: selectedData?.item.date,
                         description: text,
-                        time: selectedData?.time,
+                        time: selectedData?.item.time,
                       };
-                      setSelectedData(tempData);
+                      setSelectedData({ item: tempData, itemType: "note" });
                     }}
                   />
                 </View>
               ) : (
                 <View style={styles.modalDetailContent}>
                   <Text style={styles.modalTitleText}>
-                    {selectedData?.title}
+                    {selectedData?.item.title}
                   </Text>
                   <Text style={styles.modalDescriptionText}>
-                    {selectedData?.description}
+                    {selectedData?.item.description}
                   </Text>
                   <View style={styles.modalDateTimeContainer}>
                     <Text
                       style={styles.modalDateTimeText}
-                    >{`${selectedData?.time}  ,  ${selectedData?.date}`}</Text>
+                    >{`${selectedData?.item.time}  ,  ${selectedData?.item.date}`}</Text>
                   </View>
                 </View>
               )}
@@ -158,20 +176,29 @@ const Home = (props: Props) => {
         <SwipeableFlatList
           keyExtractor={extractItemKey}
           data={data}
-          renderItem={({ item }: { item: note }) => (
+          renderItem={({ item }: { item: commonListTodo }) => (
             <Pressable
               onPress={() => {
                 setSelectedData(item);
                 setModalVisible(!modalVisible);
               }}
             >
-              <ListTile item={item} />
+              {item.itemType === "note" ? (
+                <ListTile item={item.item} />
+              ) : (
+                //@ts-ignore
+                <TodoTile item={item.item} />
+              )}
             </Pressable>
           )}
           maxSwipeDistance={80}
-          renderQuickActions={({ index, item }: { index: any; item: note }) =>
-            QuickActions(index, item)
-          }
+          renderQuickActions={({
+            index,
+            item,
+          }: {
+            index: any;
+            item: commonListTodo;
+          }) => QuickActions(index, item)}
           contentContainerStyle={styles.contentContainerStyle}
           shouldBounceOnMount={true}
         />
