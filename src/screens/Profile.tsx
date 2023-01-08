@@ -1,4 +1,12 @@
-import { StyleSheet, Text, View, Image, Button, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Button,
+  Pressable,
+  SafeAreaView,
+} from "react-native";
 import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -12,6 +20,16 @@ const Profile = (props: Props) => {
   const [image, setImage] = useState("");
 
   const getProfileDetails = async () => {};
+
+  const Header: React.FC = () => {
+    return (
+      <View style={styles.headerContainer}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{`Profile`}</Text>
+        </View>
+      </View>
+    );
+  };
 
   const handleLogout = async () => {};
   const pickImage = async () => {
@@ -32,44 +50,53 @@ const Profile = (props: Props) => {
 
   const styles = themeStyles(theme);
 
-  return (
-    <>
-      <View style={styles.leftCurtain}></View>
-      <View style={styles.rightCurtain}></View>
-      <View style={styles.container}>
-        <View style={styles.profilePicContainer}>
-          {!image ? (
-            <Image
-              source={require("../../assets/app-icon.png")}
-              style={styles.image}
-            />
-          ) : (
-            <Image source={{ uri: image }} style={styles.image} />
-          )}
-          <View style={styles.cameraButton}>
-            <Pressable onPress={pickImage}>
+  const ProfileContent = () => {
+    return (
+      <>
+        {/* <View style={styles.leftCurtain}></View>
+        <View style={styles.rightCurtain}></View> */}
+        <View style={styles.container}>
+          <View style={styles.profilePicContainer}>
+            {!image ? (
               <Image
-                source={require("../../assets/camera.png")}
-                style={styles.imageCamera}
+                source={require("../../assets/app-icon.png")}
+                style={styles.image}
               />
+            ) : (
+              <Image source={{ uri: image }} style={styles.image} />
+            )}
+            <View style={styles.cameraButton}>
+              <Pressable onPress={pickImage}>
+                <Image
+                  source={require("../../assets/camera.png")}
+                  style={styles.imageCamera}
+                />
+              </Pressable>
+            </View>
+          </View>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.nameText}>Isuru Ranapana</Text>
+            <Text style={styles.emailText}>isuru.r@eyepax.com</Text>
+          </View>
+
+          <View style={styles.btnContainer}>
+            <Pressable
+              onPress={handleLogout}
+              style={{ width: 150, alignItems: "center" }}
+            >
+              <Text style={styles.logoutText}>Logout</Text>
             </Pressable>
           </View>
         </View>
-        <View style={styles.detailsContainer}>
-          <Text style={styles.nameText}>Isuru Ranapana</Text>
-          <Text style={styles.emailText}>isuru.r@eyepax.com</Text>
-        </View>
+      </>
+    );
+  };
 
-        <View style={styles.btnContainer}>
-          <Pressable
-            onPress={handleLogout}
-            style={{ width: 150, alignItems: "center" }}
-          >
-            <Text style={styles.logoutText}>Logout</Text>
-          </Pressable>
-        </View>
-      </View>
-    </>
+  return (
+    <SafeAreaView style={styles.wrapper}>
+      <Header />
+      <ProfileContent />
+    </SafeAreaView>
   );
 };
 
@@ -83,6 +110,29 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       backgroundColor: theme.colors.background,
     },
+    wrapper: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    headerContainer: {
+      marginTop: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      // flex: 1,
+      // backgroundColor: "red",
+      height: 70,
+      zIndex: 10,
+    },
+    headerTextContainer: {
+      // flex: 1,
+      // backgroundColor: "blue",
+    },
+    headerText: {
+      fontSize: 20,
+      fontWeight: "300",
+      color: theme.colors.rawText,
+    },
+
     header: {
       height: "50%",
       width: "100%",
@@ -150,27 +200,27 @@ const themeStyles = (theme: theme) =>
       right: 0,
       borderRadius: 25,
     },
-    leftCurtain: {
-      height: 400,
-      width: 300,
-      position: "absolute",
-      backgroundColor: theme.colors.secondary,
-      opacity: 0.4,
-      borderBottomRightRadius: 1200,
-      overflow: "hidden",
-      borderTopRightRadius: 200,
-    },
-    rightCurtain: {
-      height: 400,
-      width: 300,
-      position: "absolute",
-      backgroundColor: theme.colors.card,
-      opacity: 0.4,
-      borderBottomLeftRadius: 1200,
-      overflow: "hidden",
-      borderTopLeftRadius: 200,
-      right: 0,
-    },
+    // leftCurtain: {
+    //   height: 400,
+    //   width: 300,
+    //   position: "absolute",
+    //   backgroundColor: theme.colors.secondary,
+    //   opacity: 0.4,
+    //   borderBottomRightRadius: 1200,
+    //   overflow: "hidden",
+    //   borderTopRightRadius: 200,
+    // },
+    // rightCurtain: {
+    //   height: 400,
+    //   width: 300,
+    //   position: "absolute",
+    //   backgroundColor: theme.colors.card,
+    //   opacity: 0.4,
+    //   borderBottomLeftRadius: 1200,
+    //   overflow: "hidden",
+    //   borderTopLeftRadius: 200,
+    //   right: 0,
+    // },
     logoutText: {
       color: theme.colors.rawText,
     },

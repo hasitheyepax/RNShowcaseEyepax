@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet } from "react-native";
-import { note } from "../config/types/note";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { theme } from "../config/colors";
 import ThemeContext from "../contexts/themeContext";
 import { useContext } from "react";
+import { todos } from "../config/types/todos";
 
-export default function ListTile({ item }: { item: note }) {
+export default function TodoTile({ item }: { item: todos }) {
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);
@@ -13,6 +13,24 @@ export default function ListTile({ item }: { item: note }) {
     <View style={styles.tile}>
       <View style={styles.container}></View>
       <View style={styles.innerContainer}></View>
+      <View style={styles.iconContainer}>
+        {item.risk === "high" ? (
+          <Image
+            source={require("../../assets/high-risk.png")}
+            style={styles.image}
+          />
+        ) : item.risk === "medium" ? (
+          <Image
+            source={require("../../assets/medium-risk.png")}
+            style={styles.image}
+          />
+        ) : (
+          <Image
+            source={require("../../assets/low-risk.png")}
+            style={styles.image}
+          />
+        )}
+      </View>
       <View style={styles.content}>
         <Text style={styles.titleText}>{item.title}</Text>
         <Text style={styles.descriptionText}>{item.description}</Text>
@@ -21,6 +39,7 @@ export default function ListTile({ item }: { item: note }) {
           <Text style={styles.dateTimeText}>{item.time}</Text>
         </View>
       </View>
+      <View style={styles.checkContainer}></View>
     </View>
   );
 }
@@ -66,7 +85,6 @@ const themeStyles = (theme: theme) =>
       width: "80%",
       height: 150,
       backgroundColor: theme.colors.secondary,
-
       position: "absolute",
       zIndex: 2,
       borderTopLeftRadius: 10,
@@ -87,8 +105,9 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
       zIndex: 10,
       height: 150,
-      width: "100%",
+      width: "70%",
       padding: 10,
+      right: "15%",
     },
     dateTimeContainer: {
       flexDirection: "row",
@@ -99,5 +118,26 @@ const themeStyles = (theme: theme) =>
     dateTimeText: {
       color: theme.colors.rawText,
       fontSize: 14,
+    },
+    iconContainer: {
+      position: "absolute",
+      zIndex: 10,
+      height: 150,
+      width: "15%",
+      padding: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    checkContainer: {
+      position: "absolute",
+      zIndex: 10,
+      height: 150,
+      width: "15%",
+      padding: 10,
+      right: 0,
+    },
+    image: {
+      height: 45,
+      width: 45,
     },
   });
