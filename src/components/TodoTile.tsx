@@ -14,12 +14,12 @@ export default function TodoTile({ item }: { item: todos }) {
       <View style={styles.container}></View>
       <View style={styles.innerContainer}></View>
       <View style={styles.iconContainer}>
-        {item.risk === "high" ? (
+        {item.priority === "high" ? (
           <Image
             source={require("../../assets/high-risk.png")}
             style={styles.image}
           />
-        ) : item.risk === "medium" ? (
+        ) : item.priority === "medium" ? (
           <Image
             source={require("../../assets/medium-risk.png")}
             style={styles.image}

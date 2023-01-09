@@ -6,5 +6,5 @@ export type todos = {
   dueTime: string | undefined;
   date: string | undefined;
   time: string | undefined;
-  risk: string | undefined;
+  priority: string | undefined;
 };
