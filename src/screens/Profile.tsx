@@ -11,6 +11,8 @@ import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
 import * as ImagePicker from "expo-image-picker";
+import { useAppDispatch } from "../redux/hooks";
+import { logout } from "../redux/slices/authSlice";
 
 type Props = {};
 
@@ -18,6 +20,8 @@ const Profile = (props: Props) => {
   const { theme } = useContext(ThemeContext);
   const [userDetails, setUserDetails] = useState({});
   const [image, setImage] = useState("");
+
+  const dispatch = useAppDispatch();
 
   const getProfileDetails = async () => {};
 
@@ -31,7 +35,9 @@ const Profile = (props: Props) => {
     );
   };
 
-  const handleLogout = async () => {};
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
