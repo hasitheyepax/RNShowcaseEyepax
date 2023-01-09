@@ -11,6 +11,7 @@ import {
   TextInput,
   Image,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 
 //@ts-ignore
@@ -22,6 +23,24 @@ import { todos } from "../config/types/todos";
 import todoMock from "../mocks/todosMock";
 import TodoTile from "../components/TodoTile";
 import { commonListTodo } from "../config/types/commonListTodo";
+import Lottie from "lottie-react-native";
+import { useIsFocused } from "@react-navigation/native";
+import addIcon from "../components/assets/icons/add.icon.json";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  interpolate,
+  withTiming,
+  withDelay,
+  runOnJS,
+  withSequence,
+  withSpring,
+  add,
+} from "react-native-reanimated";
+import AddNotesModalComponent from "../components/AddNotesModalComponent";
+import AddTodosModalComponent from "../components/AddTodosModalComponents";
+import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
+import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
 
 type Props = {};
 
@@ -32,12 +51,20 @@ const extractItemKey = (item: commonListTodo) => {
 const Home = (props: Props) => {
   const [data, setData] = useState<commonListTodo[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
+  const [addTodoModalVisible, setAddTodoModalVisible] = useState(false);
   const [selectedData, setSelectedData] = useState<commonListTodo>();
+  const [addData, setAddData] = useState<commonListTodo>();
+
   const [editMode, setEditMode] = useState(false);
 
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);
+  const animationRef = useRef(null);
+  const isFocused = useIsFocused();
+  const buttonPosition = useSharedValue(0);
+  const { height, width } = Dimensions.get("window");
 
   useEffect(() => {
     let notes: commonListTodo[] = [];
@@ -52,6 +79,47 @@ const Home = (props: Props) => {
     }
     setData([...notes, ...todos]);
   }, []);
+
+  useEffect(() => {
+    if (animationRef?.current && isFocused) {
+      //@ts-ignore
+      animationRef.current.play();
+    }
+  }, [isFocused]);
+
+  const buttonsAnimatedStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
+    return {
+      opacity: withTiming(buttonPosition.value, { duration: 500 }),
+      transform: [
+        {
+          translateY: withTiming(interpolation + 10, { duration: 1000 }),
+        },
+        {
+          translateX: withTiming(interpolation + 10, { duration: 500 }),
+        },
+      ],
+      zIndex: 16,
+      position: "absolute",
+    };
+  });
+
+  const todoButtonAnimatedStyle = useAnimatedStyle(() => {
+    const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
+    return {
+      opacity: withTiming(buttonPosition.value, { duration: 900 }),
+      transform: [
+        {
+          translateY: withTiming(interpolation - 60, { duration: 1500 }),
+        },
+        {
+          translateX: withTiming(interpolation + 50, { duration: 800 }),
+        },
+      ],
+      zIndex: 16,
+      position: "absolute",
+    };
+  });
 
   const Header: React.FC = () => {
     return (
@@ -84,95 +152,105 @@ const Home = (props: Props) => {
   const HomeContent = () => {
     return (
       <View style={styles.container}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalImageContainer}>
+        <View style={styles.addButtonContainer}>
+          <Pressable
+            onPress={() => {
+              buttonPosition.value === 1
+                ? (buttonPosition.value = 0)
+                : (buttonPosition.value = 1);
+            }}
+          >
+            <Lottie
+              ref={animationRef}
+              loop={false}
+              style={styles.animatedIcon}
+              source={addIcon}
+            />
+          </Pressable>
+        </View>
+        <Animated.View style={styles.addNoteButtonContainer}>
+          <Animated.View style={buttonsAnimatedStyle}>
+            <Pressable
+              onPress={() => {
+                setAddData({
+                  itemType: "note",
+                  item: {
+                    id: "",
+                    title: "",
+                    description: "",
+                    date: "",
+                    time: "",
+                  },
+                });
+                setAddNoteModalVisible(!addNoteModalVisible);
+              }}
+            >
               <Image
-                source={require("../../assets/employee.png")}
-                style={styles.imageCamera}
+                source={require("../../assets/note.png")}
+                style={styles.noteImage}
               />
-            </View>
-            <View style={styles.modalView}>
-              {editMode ? (
-                <View style={styles.modalDetailContent}>
-                  <TextInput
-                    placeholder="Title"
-                    placeholderTextColor="black"
-                    style={styles.textInput}
-                    value={selectedData?.item.title}
-                    onChangeText={(text) => {
-                      const tempData: note = {
-                        id: selectedData?.item.id,
-                        title: text,
-                        date: selectedData?.item.date,
-                        description: selectedData?.item.description,
-                        time: selectedData?.item?.time,
-                      };
-                      setSelectedData({ item: tempData, itemType: "note" });
-                    }}
-                  />
-                  <TextInput
-                    placeholder="Description"
-                    placeholderTextColor="black"
-                    style={styles.textInput}
-                    value={selectedData?.item?.description}
-                    onChangeText={(text) => {
-                      const tempData: note = {
-                        id: selectedData?.item.id,
-                        title: selectedData?.item.title,
-                        date: selectedData?.item.date,
-                        description: text,
-                        time: selectedData?.item.time,
-                      };
-                      setSelectedData({ item: tempData, itemType: "note" });
-                    }}
-                  />
-                </View>
-              ) : (
-                <View style={styles.modalDetailContent}>
-                  <Text style={styles.modalTitleText}>
-                    {selectedData?.item.title}
-                  </Text>
-                  <Text style={styles.modalDescriptionText}>
-                    {selectedData?.item.description}
-                  </Text>
-                  <View style={styles.modalDateTimeContainer}>
-                    <Text
-                      style={styles.modalDateTimeText}
-                    >{`${selectedData?.item.time}  ,  ${selectedData?.item.date}`}</Text>
-                  </View>
-                </View>
-              )}
-              <View style={styles.modalButtonContainer}>
-                <Pressable
-                  style={[styles.buttonModal, styles.buttonClose]}
-                  onPress={() => setEditMode(!editMode)}
-                >
-                  <Text style={styles.textStyle}>
-                    {!editMode ? "Edit" : "Save"}
-                  </Text>
-                </Pressable>
-                <Pressable
-                  style={[styles.buttonModal, styles.buttonClose]}
-                  onPress={() => {
-                    setModalVisible(!modalVisible);
-                    setEditMode(false);
-                  }}
-                >
-                  <Text style={styles.textStyle}>Close</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </Modal>
+            </Pressable>
+          </Animated.View>
+        </Animated.View>
+        <Animated.View style={styles.addNoteButtonContainer}>
+          <Animated.View style={todoButtonAnimatedStyle}>
+            <Pressable
+              onPress={() => {
+                setAddData({
+                  item: {
+                    id: "",
+                    title: "",
+                    description: "",
+                    date: "",
+                    time: "",
+                    dueDate: "",
+                    dueTime: "",
+                    priority: "",
+                  },
+                  itemType: "todo",
+                });
+                setAddTodoModalVisible(!addTodoModalVisible);
+              }}
+            >
+              <Image
+                source={require("../../assets/todo.png")}
+                style={styles.noteImage}
+              />
+            </Pressable>
+          </Animated.View>
+        </Animated.View>
+        <AddNotesModalComponent
+          addNoteModalVisible={addNoteModalVisible}
+          setAddNoteModalVisible={setAddNoteModalVisible}
+          addData={addData}
+          setAddData={setAddData}
+        />
+        <AddTodosModalComponent
+          addTodoModalVisible={addTodoModalVisible}
+          setAddTodoModalVisible={setAddTodoModalVisible}
+          addData={addData}
+          setAddData={setAddData}
+        />
+        {selectedData?.itemType === "note" ? (
+          <ViewAndEditNoteModalComponent
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            editMode={editMode}
+            setEditMode={setEditMode}
+            selectedData={selectedData}
+            setSelectedData={setSelectedData}
+          />
+        ) : (
+          <ViewAndEditTodoModalComponent
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            editMode={editMode}
+            setEditMode={setEditMode}
+            selectedData={selectedData}
+            setSelectedData={setSelectedData}
+          />
+        )}
+
         <SwipeableFlatList
           keyExtractor={extractItemKey}
           data={data}
@@ -272,119 +350,28 @@ const themeStyles = (theme: theme) =>
       backgroundColor: theme.colors.background,
       paddingBottom: 10,
     },
-    centeredView: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(255,255,255,0.3)",
-      zIndex: 2,
-    },
-    modalView: {
-      margin: 20,
-      backgroundColor: theme.colors.card,
-      top: -70,
-      borderRadius: 20,
-      padding: 35,
-      alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-      zIndex: 3,
-    },
-    buttonModal: {
-      borderRadius: 20,
-      padding: 10,
-      elevation: 2,
-      marginHorizontal: 25,
-      width: 100,
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: 20,
-      height: 40,
-      marginVertical: 10,
-      borderWidth: 1,
-      borderColor: theme.colors.rawText,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-    },
-    buttonOpen: {
-      backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-      backgroundColor: theme.colors.secondary,
-    },
-    textStyle: {
-      color: "white",
-      fontWeight: "bold",
-      textAlign: "center",
-    },
-    modalText: {
-      marginBottom: 15,
-      textAlign: "center",
-    },
-    textInput: {
-      height: 40,
-      borderWidth: 1,
-      borderColor: theme.colors.primary,
-      marginHorizontal: 5,
-      marginVertical: 10,
-      borderRadius: 25,
-      paddingLeft: 10,
-      width: 240,
-    },
-    modalButtonContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-evenly",
-      width: "100%",
-      marginHorizontal: -10,
-    },
-    imageCamera: {
-      width: 76,
-      height: 76,
-      borderRadius: 25,
-      top: -10,
-      left: 50,
-    },
-    modalImageContainer: {
-      width: "100%",
-      zIndex: 5,
-    },
-    modalDetailContent: {
-      marginVertical: 10,
-      width: 250,
-      justifyContent: "center",
-    },
-    modalTitleText: {
-      fontSize: 22,
-      color: theme.colors.rawText,
-      fontWeight: "bold",
-      alignSelf: "center",
-    },
-    modalDescriptionText: {
-      fontSize: 16,
-      color: theme.colors.rawText,
-      paddingVertical: 10,
-      marginBottom: 10,
-    },
-    modalDateTimeContainer: {
-      flexDirection: "row",
+    addButtonContainer: {
       position: "absolute",
-      top: -40,
-      right: -15,
+      height: 50,
+      width: 50,
+      zIndex: 20,
+      right: 30,
+      bottom: 120,
     },
-    modalDateTimeText: {
-      fontSize: 12,
-      color: theme.colors.rawText,
+    addNoteButtonContainer: {
+      position: "absolute",
+      height: 50,
+      width: 50,
+      zIndex: 16,
+      right: 30,
+      bottom: 120,
+    },
+    animatedIcon: {
+      height: 80,
+      width: 80,
+    },
+    noteImage: {
+      height: 60,
+      width: 60,
     },
   });

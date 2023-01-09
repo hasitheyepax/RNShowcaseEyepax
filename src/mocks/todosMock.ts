@@ -9,7 +9,7 @@ const todoMock: todos[] = [
     time: "10.23 A.M",
     dueDate: "2023-02-04",
     dueTime: "18.43",
-    risk: "high",
+    priority: "high",
   },
 ];
 
