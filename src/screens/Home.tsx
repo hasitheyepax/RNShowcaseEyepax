@@ -250,36 +250,37 @@ const Home = (props: Props) => {
             setSelectedData={setSelectedData}
           />
         )}
-
-        <SwipeableFlatList
-          keyExtractor={extractItemKey}
-          data={data}
-          renderItem={({ item }: { item: commonListTodo }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedData(item);
-                setModalVisible(!modalVisible);
-              }}
-            >
-              {item.itemType === "note" ? (
-                <ListTile item={item.item} />
-              ) : (
-                //@ts-ignore
-                <TodoTile item={item.item} />
-              )}
-            </Pressable>
-          )}
-          maxSwipeDistance={80}
-          renderQuickActions={({
-            index,
-            item,
-          }: {
-            index: any;
-            item: commonListTodo;
-          }) => QuickActions(index, item)}
-          contentContainerStyle={styles.contentContainerStyle}
-          shouldBounceOnMount={true}
-        />
+        <View style={{ marginTop: 20 }}>
+          <SwipeableFlatList
+            keyExtractor={extractItemKey}
+            data={data}
+            renderItem={({ item }: { item: commonListTodo }) => (
+              <Pressable
+                onPress={() => {
+                  setSelectedData(item);
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                {item.itemType === "note" ? (
+                  <ListTile item={item.item} />
+                ) : (
+                  //@ts-ignore
+                  <TodoTile item={item.item} />
+                )}
+              </Pressable>
+            )}
+            maxSwipeDistance={80}
+            renderQuickActions={({
+              index,
+              item,
+            }: {
+              index: any;
+              item: commonListTodo;
+            }) => QuickActions(index, item)}
+            contentContainerStyle={styles.contentContainerStyle}
+            shouldBounceOnMount={true}
+          />
+        </View>
       </View>
     );
   };
@@ -298,6 +299,7 @@ const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
       backgroundColor: theme.colors.background,
+      flex: 1,
     },
     wrapper: {
       flex: 1,
@@ -308,8 +310,7 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       alignItems: "center",
       // flex: 1,
-      // backgroundColor: "red",
-      height: 70,
+      // height: 70,
     },
     headerTextContainer: {
       // flex: 1,
@@ -348,7 +349,7 @@ const themeStyles = (theme: theme) =>
     contentContainerStyle: {
       flexGrow: 1,
       backgroundColor: theme.colors.background,
-      paddingBottom: 10,
+      paddingBottom: 20,
     },
     addButtonContainer: {
       position: "absolute",
@@ -356,7 +357,7 @@ const themeStyles = (theme: theme) =>
       width: 50,
       zIndex: 20,
       right: 30,
-      bottom: 120,
+      bottom: 30,
     },
     addNoteButtonContainer: {
       position: "absolute",
@@ -364,7 +365,7 @@ const themeStyles = (theme: theme) =>
       width: 50,
       zIndex: 16,
       right: 30,
-      bottom: 120,
+      bottom: 30,
     },
     animatedIcon: {
       height: 80,
