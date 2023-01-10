@@ -36,12 +36,17 @@ import Animated, {
   withSequence,
   withSpring,
   add,
+  FadeIn,
+  FadeOut,
+  Layout,
 } from "react-native-reanimated";
 import AddNotesModalComponent from "../components/AddNotesModalComponent";
 import AddTodosModalComponent from "../components/AddTodosModalComponents";
 import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
 import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
-import AnimatedList from "../components/animatedList/AnimatedList";
+import AnimatedList, {
+  renderItemProps,
+} from "../components/animatedList/AnimatedList";
 
 type Props = {};
 
@@ -88,16 +93,16 @@ const Home = (props: Props) => {
     }
   }, [isFocused]);
 
-  const buttonsAnimatedStyle = useAnimatedStyle(() => {
+  const todoButtonAnimatedStyle = useAnimatedStyle(() => {
     const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
     return {
-      opacity: withTiming(buttonPosition.value, { duration: 500 }),
+      opacity: withTiming(buttonPosition.value, { duration: 300 }),
       transform: [
         {
-          translateY: withTiming(interpolation + 10, { duration: 1000 }),
+          translateY: withTiming(interpolation - 60, { duration: 550 }),
         },
         {
-          translateX: withTiming(interpolation + 10, { duration: 500 }),
+          translateX: withTiming(interpolation + 50, { duration: 500 }),
         },
       ],
       zIndex: 16,
@@ -105,16 +110,16 @@ const Home = (props: Props) => {
     };
   });
 
-  const todoButtonAnimatedStyle = useAnimatedStyle(() => {
+  const buttonsAnimatedStyle = useAnimatedStyle(() => {
     const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
     return {
-      opacity: withTiming(buttonPosition.value, { duration: 900 }),
+      opacity: withTiming(buttonPosition.value, { duration: 150 }),
       transform: [
         {
-          translateY: withTiming(interpolation - 60, { duration: 1500 }),
+          translateY: withTiming(interpolation + 10, { duration: 500 }),
         },
         {
-          translateX: withTiming(interpolation + 50, { duration: 800 }),
+          translateX: withTiming(interpolation + 10, { duration: 500 }),
         },
       ],
       zIndex: 16,
@@ -133,20 +138,52 @@ const Home = (props: Props) => {
   };
 
   const deleteItem = (itemId: any) => {
-    const newState = [...data];
-    const filteredState = newState.filter((item) => item.item.id !== itemId);
+    const filteredState = data.filter((item) => item.item.id !== itemId);
     return setData(filteredState);
   };
 
   const QuickActions = (index: any, qaItem: commonListTodo) => {
     return (
-      <View style={styles.qaContainer}>
+      <Animated.View
+        style={styles.qaContainer}
+        entering={FadeIn.delay(110 * index)}
+      >
         <View style={[styles.button]}>
           <Pressable onPress={() => deleteItem(qaItem.item.id)}>
             <Text style={[styles.buttonText, styles.button3Text]}>Delete</Text>
           </Pressable>
         </View>
-      </View>
+      </Animated.View>
+    );
+  };
+
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: commonListTodo;
+    index: number;
+  }) => {
+    return (
+      <Animated.View
+        entering={FadeIn.delay(100 * index)}
+        exiting={FadeOut}
+        layout={Layout.delay(100)}
+      >
+        <Pressable
+          onPress={() => {
+            setSelectedData(item);
+            setModalVisible(!modalVisible);
+          }}
+        >
+          {item.itemType === "note" ? (
+            <ListTile item={item.item} />
+          ) : (
+            //@ts-ignore
+            <TodoTile item={item.item} />
+          )}
+        </Pressable>
+      </Animated.View>
     );
   };
 
@@ -255,21 +292,7 @@ const Home = (props: Props) => {
           {/* <SwipeableFlatList
             keyExtractor={extractItemKey}
             data={data}
-            renderItem={({ item }: { item: commonListTodo }) => (
-              <Pressable
-                onPress={() => {
-                  setSelectedData(item);
-                  setModalVisible(!modalVisible);
-                }}
-              >
-                {item.itemType === "note" ? (
-                  <ListTile item={item.item} />
-                ) : (
-                  //@ts-ignore
-                  <TodoTile item={item.item} />
-                )}
-              </Pressable>
-            )}
+            renderItem={renderItem}
             maxSwipeDistance={80}
             renderQuickActions={({
               index,
@@ -281,15 +304,8 @@ const Home = (props: Props) => {
             contentContainerStyle={styles.contentContainerStyle}
             shouldBounceOnMount={true}
           /> */}
-          <AnimatedList
-            data={data}
-            renderItem={() => (
-              <View>
-                <Text>Hello</Text>
-              </View>
-            )}
-          />
         </View>
+        <AnimatedList data={data} deleteFunction={deleteItem} />
       </View>
     );
   };
