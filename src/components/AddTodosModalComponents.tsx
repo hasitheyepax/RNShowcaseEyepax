@@ -15,6 +15,7 @@ import { AddTodoModalInterface } from "./interfaces/AddTodoModalInterface";
 import { todos } from "../config/types/todos";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
   const { theme } = useContext(ThemeContext);
@@ -36,7 +37,7 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
       time: "",
       dueDate: "",
       dueTime: "",
-      priority: "",
+      priority: "medium",
     },
     itemType: "todo",
   });
@@ -61,6 +62,10 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
     } else {
       setSelectedPriority({ high: false, medium: false, low: true });
     }
+    setInputs({
+      itemType: "todo",
+      item: { ...inputs.item, priority: priority },
+    });
   };
   const handleConfirm = (date: any) => {
     hidePicker();
@@ -177,7 +182,7 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
               }}
             />
 
-            <Pressable onPress={showDatePicker}>
+            <TouchableWithoutFeedback onPress={showDatePicker}>
               <TextInput
                 placeholder="Due Date"
                 placeholderTextColor="black"
@@ -185,8 +190,8 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
                 style={styles.textInput}
                 value={inputs.item.dueDate}
               />
-            </Pressable>
-            <Pressable onPress={showTimePicker}>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={showTimePicker}>
               <TextInput
                 placeholder="Due Time"
                 placeholderTextColor="black"
@@ -194,7 +199,7 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
                 editable={false}
                 value={inputs.item.dueTime}
               />
-            </Pressable>
+            </TouchableWithoutFeedback>
           </View>
 
           <View style={styles.modalButtonContainer}>
