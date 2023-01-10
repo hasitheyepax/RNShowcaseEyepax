@@ -41,6 +41,7 @@ import AddNotesModalComponent from "../components/AddNotesModalComponent";
 import AddTodosModalComponent from "../components/AddTodosModalComponents";
 import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
 import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
+import AnimatedList from "../components/animatedList/AnimatedList";
 
 type Props = {};
 
@@ -251,7 +252,7 @@ const Home = (props: Props) => {
           />
         )}
         <View style={{ marginTop: 20 }}>
-          <SwipeableFlatList
+          {/* <SwipeableFlatList
             keyExtractor={extractItemKey}
             data={data}
             renderItem={({ item }: { item: commonListTodo }) => (
@@ -279,6 +280,14 @@ const Home = (props: Props) => {
             }) => QuickActions(index, item)}
             contentContainerStyle={styles.contentContainerStyle}
             shouldBounceOnMount={true}
+          /> */}
+          <AnimatedList
+            data={data}
+            renderItem={() => (
+              <View>
+                <Text>Hello</Text>
+              </View>
+            )}
           />
         </View>
       </View>
