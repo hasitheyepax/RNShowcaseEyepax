@@ -44,9 +44,7 @@ import AddNotesModalComponent from "../components/AddNotesModalComponent";
 import AddTodosModalComponent from "../components/AddTodosModalComponents";
 import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
 import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
-import AnimatedList, {
-  renderItemProps,
-} from "../components/animatedList/AnimatedList";
+import AnimatedList from "../components/animatedList/AnimatedList";
 
 type Props = {};
 
@@ -139,7 +137,7 @@ const Home = (props: Props) => {
 
   const deleteItem = (itemId: any) => {
     const filteredState = data.filter((item) => item.item.id !== itemId);
-    return setData(filteredState);
+    setData(filteredState);
   };
 
   const QuickActions = (index: any, qaItem: commonListTodo) => {

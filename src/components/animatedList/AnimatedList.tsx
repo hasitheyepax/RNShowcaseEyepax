@@ -3,13 +3,20 @@ import {
   Text,
   StyleSheet,
   ViewStyle,
+  Dimensions,
   TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
-import React, { useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { commonListTodo } from "../../config/types/commonListTodo";
 import ThemeContext from "../../contexts/themeContext";
 import { theme } from "../../config/colors";
-import Animated, { FadeIn, FadeInUp, Layout } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInUp,
+  FadeOut,
+  Layout,
+} from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -26,35 +33,17 @@ interface Props {
 }
 
 const AnimatedList: React.FC<Props> = (props) => {
-  const { data: innerData, contentContainerStyle, deleteFunction } = props;
+  const { data, contentContainerStyle, deleteFunction } = props;
   const { theme } = useContext(ThemeContext);
-
-  const [data, setData] = useState<commonListTodo[]>(innerData);
 
   const styles = themeStyles(theme);
 
-  const deleteItem = (itemId: any) => {
-    const filteredState = data.filter((item) => item.item.id !== itemId);
-    return setData(filteredState);
-  };
-
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
-    const itemRef = useRef<Swipeable>(null);
-
-    const handleSwipeableOpen = (direction: any, swipeable: Swipeable) => {
-      if (direction === "right") {
-        if (itemRef.current?.props.id === item.item.id) {
-          console.log("yes");
-        } else {
-          console.log("no");
-        }
-      }
-    };
 
     const RightAction = () => {
       return (
-        <TouchableWithoutFeedback onPress={() => deleteItem(item.item.id)}>
+        <TouchableWithoutFeedback onPress={() => deleteFunction(item.item.id)}>
           <Animated.View
             entering={FadeInUp.damping(1000)}
             style={styles.rightActionStyle}
@@ -67,16 +56,12 @@ const AnimatedList: React.FC<Props> = (props) => {
     };
 
     return (
-      <Swipeable
-        renderRightActions={RightAction}
-        ref={itemRef}
-        onSwipeableOpen={handleSwipeableOpen}
-        id={item.item.id}
-      >
+      <Swipeable renderRightActions={RightAction}>
         <Animated.View
           style={styles.listItem}
           entering={FadeIn.delay(100 * index)}
-          layout={Layout.delay(100)}
+          layout={Layout.delay(200)}
+          exiting={FadeOut}
         >
           <Text style={styles.titleText}>{item.item.title}</Text>
         </Animated.View>
@@ -86,11 +71,11 @@ const AnimatedList: React.FC<Props> = (props) => {
 
   return (
     <View style={[styles.container, contentContainerStyle]}>
-      <Animated.ScrollView style={styles.scrollView} layout={Layout.delay(300)}>
+      <ScrollView style={styles.scrollView}>
         {data.map((e, index) => {
           return <RenderItem item={e} index={index} key={index.toString()} />;
         })}
-      </Animated.ScrollView>
+      </ScrollView>
     </View>
   );
 };
