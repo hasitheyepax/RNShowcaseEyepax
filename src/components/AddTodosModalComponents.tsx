@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   Modal,
   View,
@@ -7,17 +6,78 @@ import {
   Pressable,
   Text,
   StyleSheet,
+  Button,
 } from "react-native";
 import { theme } from "../config/colors";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { AddTodoModalInterface } from "./interfaces/AddTodoModalInterface";
 import { todos } from "../config/types/todos";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import moment from "moment";
 
 const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);
+  const [pickerMode, setPickerMode] = useState<string | undefined | null>(null);
+  const [inline, setInline] = useState<boolean>(false);
+  const [selectedPriority, setSelectedPriority] = useState({
+    high: false,
+    medium: true,
+    low: false,
+  });
+  const [inputs, setInputs] = useState({
+    item: {
+      id: "",
+      title: "",
+      description: "",
+      date: "",
+      time: "",
+      dueDate: "",
+      dueTime: "",
+      priority: "",
+    },
+    itemType: "todo",
+  });
+
+  const showDatePicker = () => {
+    setPickerMode("date");
+  };
+
+  const showTimePicker = () => {
+    setPickerMode("time");
+  };
+
+  const hidePicker = () => {
+    setPickerMode(null);
+  };
+
+  const handlePrioritySet = (priority: string) => {
+    if (priority === "high") {
+      setSelectedPriority({ high: true, medium: false, low: false });
+    } else if (priority === "medium") {
+      setSelectedPriority({ high: false, medium: true, low: false });
+    } else {
+      setSelectedPriority({ high: false, medium: false, low: true });
+    }
+  };
+  const handleConfirm = (date: any) => {
+    hidePicker();
+    if (pickerMode === "date") {
+      var newdate = moment(date).format("Do MMM YYYY");
+      setInputs({
+        itemType: "todo",
+        item: { ...inputs.item, dueDate: newdate },
+      });
+    } else {
+      var time = moment(date).format("LT");
+      setInputs({
+        itemType: "todo",
+        item: { ...inputs.item, dueTime: time },
+      });
+    }
+  };
 
   return (
     <Modal
@@ -37,107 +97,110 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
         </View>
         <View style={styles.modalView}>
           <View style={styles.modalDetailContent}>
-            <TextInput
-              placeholder="Priority"
-              placeholderTextColor="black"
-              style={styles.textInput}
-              value={props.addData?.item.priority}
-              onChangeText={(text) => {
-                const tempData: todos = {
-                  id: "225588",
-                  title: props.addData?.item.title,
-                  date: props.addData?.item.date,
-                  description: props.addData?.item.description,
-                  time: props.addData?.item?.time,
-                  dueDate: props.addData?.item.dueDate,
-                  dueTime: props.addData?.item.dueTime,
-                  priority: text,
-                };
-                props.setAddData({ item: tempData, itemType: "todo" });
-              }}
+            <DateTimePickerModal
+              isVisible={pickerMode !== null}
+              mode={pickerMode}
+              onConfirm={handleConfirm}
+              onCancel={hidePicker}
+              display={inline ? "inline" : undefined}
             />
+            <Text style={styles.text}>{"Priority"}</Text>
+            <View style={styles.priorityContainer}>
+              <Pressable
+                style={
+                  selectedPriority.high
+                    ? styles.prioritySelected
+                    : styles.priorityUnselected
+                }
+                onPress={() => {
+                  handlePrioritySet("high");
+                }}
+              >
+                <Image
+                  source={require("../../assets/high-risk.png")}
+                  style={styles.priorityImage}
+                />
+              </Pressable>
+              <Pressable
+                style={
+                  selectedPriority.medium
+                    ? styles.prioritySelected
+                    : styles.priorityUnselected
+                }
+                onPress={() => {
+                  handlePrioritySet("medium");
+                }}
+              >
+                <Image
+                  source={require("../../assets/medium-risk.png")}
+                  style={styles.priorityImage}
+                />
+              </Pressable>
+              <Pressable
+                style={
+                  selectedPriority.low
+                    ? styles.prioritySelected
+                    : styles.priorityUnselected
+                }
+                onPress={() => {
+                  handlePrioritySet("low");
+                }}
+              >
+                <Image
+                  source={require("../../assets/low-risk.png")}
+                  style={styles.priorityImage}
+                />
+              </Pressable>
+            </View>
             <TextInput
               placeholder="Title"
               placeholderTextColor="black"
               style={styles.textInput}
-              value={props.addData?.item.title}
+              value={inputs.item.title}
               onChangeText={(text) => {
-                const tempData: todos = {
-                  id: "225588",
-                  title: text,
-                  date: props.addData?.item.date,
-                  description: props.addData?.item.description,
-                  time: props.addData?.item?.time,
-                  dueDate: props.addData?.item.dueDate,
-                  dueTime: props.addData?.item.dueTime,
-                  priority: props.addData?.item.priority,
-                };
-                props.setAddData({ item: tempData, itemType: "todo" });
+                setInputs({
+                  itemType: "todo",
+                  item: { ...inputs.item, title: text },
+                });
               }}
             />
             <TextInput
               placeholder="Description"
               placeholderTextColor="black"
               style={styles.textInput}
-              value={props.addData?.item.description}
+              value={inputs.item.description}
               onChangeText={(text) => {
-                const tempData: todos = {
-                  id: "225588",
-                  title: props.addData?.item.title,
-                  date: props.addData?.item.date,
-                  description: text,
-                  time: props.addData?.item?.time,
-                  dueDate: props.addData?.item.dueDate,
-                  dueTime: props.addData?.item.dueTime,
-                  priority: props.addData?.item.priority,
-                };
-                props.setAddData({ item: tempData, itemType: "todo" });
+                setInputs({
+                  itemType: "todo",
+                  item: { ...inputs.item, description: text },
+                });
               }}
             />
-            <TextInput
-              placeholder="Due Date"
-              placeholderTextColor="black"
-              style={styles.textInput}
-              value={props.addData?.item.dueDate}
-              onChangeText={(text) => {
-                const tempData: todos = {
-                  id: props.addData?.item.id,
-                  title: props.addData?.item.title,
-                  date: props.addData?.item.date,
-                  description: props.addData?.item.description,
-                  time: props.addData?.item?.time,
-                  dueDate: text,
-                  dueTime: props.addData?.item.dueTime,
-                  priority: props.addData?.item.priority,
-                };
-                props.setAddData({ item: tempData, itemType: "todo" });
-              }}
-            />
-            <TextInput
-              placeholder="Due Time"
-              placeholderTextColor="black"
-              style={styles.textInput}
-              value={props.addData?.item.dueTime}
-              onChangeText={(text) => {
-                const tempData: todos = {
-                  id: props.addData?.item.id,
-                  title: props.addData?.item.title,
-                  date: props.addData?.item.date,
-                  description: props.addData?.item.description,
-                  time: props.addData?.item?.time,
-                  dueDate: props.addData?.item.dueDate,
-                  dueTime: text,
-                  priority: props.addData?.item.priority,
-                };
-                props.setAddData({ item: tempData, itemType: "todo" });
-              }}
-            />
+
+            <Pressable onPress={showDatePicker}>
+              <TextInput
+                placeholder="Due Date"
+                placeholderTextColor="black"
+                editable={false}
+                style={styles.textInput}
+                value={inputs.item.dueDate}
+              />
+            </Pressable>
+            <Pressable onPress={showTimePicker}>
+              <TextInput
+                placeholder="Due Time"
+                placeholderTextColor="black"
+                style={styles.textInput}
+                editable={false}
+                value={inputs.item.dueTime}
+              />
+            </Pressable>
           </View>
 
           <View style={styles.modalButtonContainer}>
             <Pressable
               style={[styles.buttonModal, styles.buttonClose]}
-              onPress={() => console.log("Add data")}
+              onPress={() => props.setAddData(inputs)}
             >
               <Text style={styles.textStyle}>{"Add"}</Text>
             </Pressable>
@@ -245,5 +308,36 @@ const themeStyles = (theme: theme) =>
       color: "white",
       fontWeight: "bold",
       textAlign: "center",
+    },
+    text: {
+      height: 20,
+      marginHorizontal: 5,
+      marginVertical: 10,
+      paddingLeft: 10,
+      width: 240,
+    },
+    priorityContainer: {
+      flexDirection: "row",
+      justifyContent: "space-evenly",
+    },
+    priorityImage: {
+      width: 60,
+      height: 60,
+      borderRadius: 25,
+    },
+    prioritySelected: {
+      width: 65,
+      height: 65,
+      borderRadius: 35,
+      backgroundColor: "white",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    priorityUnselected: {
+      width: 65,
+      height: 65,
+      borderRadius: 35,
+      alignItems: "center",
+      justifyContent: "center",
     },
   });
