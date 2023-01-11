@@ -21,12 +21,15 @@ import Animated, {
 } from "react-native-reanimated";
 import AnimatedList from "../components/animatedList/AnimatedList";
 import AddNote from "../components/modals/AddNote";
+import { useAppSelector } from "../redux/hooks";
+import { selectTasks } from "../redux/slices/taskSlice";
 
 type Props = {};
 
 const Home = (props: Props) => {
-  const [data, setData] = useState<commonListTodo[]>([]);
   const [addNoteVisible, setAddNoteVisible] = useState(false);
+
+  const tasks = useAppSelector(selectTasks);
 
   const { theme } = useContext(ThemeContext);
 
@@ -86,11 +89,6 @@ const Home = (props: Props) => {
     );
   };
 
-  const deleteItem = (itemId: any) => {
-    const filteredState = data.filter((item) => item.item.id !== itemId);
-    setData(filteredState);
-  };
-
   const handleAddNote = () => {
     buttonPosition.value = 0;
     setAddNoteVisible(true);
@@ -106,7 +104,7 @@ const Home = (props: Props) => {
   };
 
   const handleSubmitNote = () => {
-    console.log("Submit note");
+    setAddNoteVisible(false);
   };
 
   const HomeContent = () => {
@@ -149,7 +147,7 @@ const Home = (props: Props) => {
           </Animated.View>
         </Animated.View>
         <View style={{ marginTop: 20 }}></View>
-        <AnimatedList data={data} deleteFunction={deleteItem} />
+        <AnimatedList data={tasks} />
       </View>
     );
   };

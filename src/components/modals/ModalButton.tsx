@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 25,
-    marginBottom: 5,
+    marginBottom: 10,
   },
   cancelButton: {
     height: 40,

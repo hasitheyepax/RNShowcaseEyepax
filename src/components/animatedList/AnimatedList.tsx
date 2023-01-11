@@ -3,12 +3,10 @@ import {
   Text,
   StyleSheet,
   ViewStyle,
-  Dimensions,
   TouchableWithoutFeedback,
   ScrollView,
 } from "react-native";
-import React, { useCallback, useContext, useState } from "react";
-import { commonListTodo } from "../../config/types/commonListTodo";
+import React, { useContext, useEffect, useRef } from "react";
 import ThemeContext from "../../contexts/themeContext";
 import { theme } from "../../config/colors";
 import Animated, {
@@ -19,31 +17,40 @@ import Animated, {
 } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
+import { localTask } from "../../config/types/localTask";
+import { timeStampToLocal } from "../../helpers/timeHelpers";
+import { useAppDispatch } from "../../redux/hooks";
+import { removeTask } from "../../redux/slices/taskSlice";
+import { SimpleLineIcons } from "@expo/vector-icons";
 
 type renderItemProps = {
-  item: commonListTodo;
+  item: localTask;
   index: number;
   key?: string;
 };
 
 interface Props {
-  data: commonListTodo[];
+  data: localTask[];
   contentContainerStyle?: ViewStyle;
-  deleteFunction: Function;
 }
 
 const AnimatedList: React.FC<Props> = (props) => {
-  const { data, contentContainerStyle, deleteFunction } = props;
+  const { data, contentContainerStyle } = props;
   const { theme } = useContext(ThemeContext);
+  const dispatch = useAppDispatch();
 
   const styles = themeStyles(theme);
+
+  const handleDelete = (task: localTask) => {
+    dispatch(removeTask(task));
+  };
 
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
 
     const RightAction = () => {
       return (
-        <TouchableWithoutFeedback onPress={() => deleteFunction(item.item.id)}>
+        <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
           <Animated.View
             entering={FadeInUp.damping(1000)}
             style={styles.rightActionStyle}
@@ -63,7 +70,22 @@ const AnimatedList: React.FC<Props> = (props) => {
           layout={Layout.delay(200)}
           exiting={FadeOut}
         >
-          <Text style={styles.titleText}>{item.item.title}</Text>
+          <Text style={styles.titleText}>{item.title}</Text>
+          {item.description && (
+            <Text style={styles.descriptionText}>{item.description}</Text>
+          )}
+          <View style={styles.timestamp}>
+            <Text style={styles.regularText}>
+              {`${timeStampToLocal(item.createdTimestamp)}`}
+            </Text>
+          </View>
+          <View style={styles.icon}>
+            <SimpleLineIcons
+              name="note"
+              size={20}
+              color={theme.colors.background}
+            />
+          </View>
         </Animated.View>
       </Swipeable>
     );
@@ -107,6 +129,17 @@ const themeStyles = (theme: theme) =>
       fontSize: 18,
       fontWeight: "600",
     },
+    descriptionText: {
+      color: theme.colors.text,
+      fontSize: 18,
+      fontWeight: "400",
+      marginTop: 10,
+    },
+    regularText: {
+      color: theme.colors.text,
+      fontSize: 14,
+      fontWeight: "400",
+    },
     rightActionStyle: {
       height: 120,
       backgroundColor: theme.colors.secondary,
@@ -122,6 +155,16 @@ const themeStyles = (theme: theme) =>
       color: theme.colors.text,
       fontWeight: "300",
       paddingTop: 10,
+    },
+    timestamp: {
+      flex: 1,
+      alignSelf: "flex-end",
+      justifyContent: "flex-end",
+    },
+    icon: {
+      position: "absolute",
+      top: 10,
+      right: 10,
     },
   });
 
