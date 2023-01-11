@@ -1,27 +1,14 @@
-import ListTile from "../components/ListTile";
-import noteMock from "../mocks/notesMock";
 import React, { useState, useContext, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
   Text,
   Pressable,
-  Modal,
-  Alert,
-  TextInput,
   Image,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
-
-//@ts-ignore
-import SwipeableFlatList from "react-native-swipeable-list";
-import { note } from "../config/types/note";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
-import { todos } from "../config/types/todos";
-import todoMock from "../mocks/todosMock";
-import TodoTile from "../components/TodoTile";
 import { commonListTodo } from "../config/types/commonListTodo";
 import Lottie from "lottie-react-native";
 import { useIsFocused } from "@react-navigation/native";
@@ -31,36 +18,15 @@ import Animated, {
   useAnimatedStyle,
   interpolate,
   withTiming,
-  withDelay,
-  runOnJS,
-  withSequence,
-  withSpring,
-  add,
-  FadeIn,
-  FadeOut,
-  Layout,
 } from "react-native-reanimated";
-import AddNotesModalComponent from "../components/AddNotesModalComponent";
-import AddTodosModalComponent from "../components/AddTodosModalComponents";
-import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
-import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
 import AnimatedList from "../components/animatedList/AnimatedList";
+import AddNote from "../components/modals/AddNote";
 
 type Props = {};
 
-const extractItemKey = (item: commonListTodo) => {
-  return item.item.id?.toString();
-};
-
 const Home = (props: Props) => {
   const [data, setData] = useState<commonListTodo[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
-  const [addTodoModalVisible, setAddTodoModalVisible] = useState(false);
-  const [selectedData, setSelectedData] = useState<commonListTodo>();
-  const [addData, setAddData] = useState<commonListTodo>();
-
-  const [editMode, setEditMode] = useState(false);
+  const [addNoteVisible, setAddNoteVisible] = useState(false);
 
   const { theme } = useContext(ThemeContext);
 
@@ -68,21 +34,6 @@ const Home = (props: Props) => {
   const animationRef = useRef(null);
   const isFocused = useIsFocused();
   const buttonPosition = useSharedValue(0);
-  const { height, width } = Dimensions.get("window");
-
-  useEffect(() => {
-    let notes: commonListTodo[] = [];
-    let todos: commonListTodo[] = [];
-    for (let i = 0; i < noteMock.length; i++) {
-      let tempNote: commonListTodo = { itemType: "note", item: noteMock[i] };
-      notes.push(tempNote);
-    }
-    for (let i = 0; i < todoMock.length; i++) {
-      let tempTodo: commonListTodo = { itemType: "todo", item: todoMock[i] };
-      todos.push(tempTodo);
-    }
-    setData([...notes, ...todos]);
-  }, []);
 
   useEffect(() => {
     if (animationRef?.current && isFocused) {
@@ -140,49 +91,22 @@ const Home = (props: Props) => {
     setData(filteredState);
   };
 
-  const QuickActions = (index: any, qaItem: commonListTodo) => {
-    return (
-      <Animated.View
-        style={styles.qaContainer}
-        entering={FadeIn.delay(110 * index)}
-      >
-        <View style={[styles.button]}>
-          <Pressable onPress={() => deleteItem(qaItem.item.id)}>
-            <Text style={[styles.buttonText, styles.button3Text]}>Delete</Text>
-          </Pressable>
-        </View>
-      </Animated.View>
-    );
+  const handleAddNote = () => {
+    buttonPosition.value = 0;
+    setAddNoteVisible(true);
+    //@ts-ignore
+    animationRef.current.play();
   };
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: commonListTodo;
-    index: number;
-  }) => {
-    return (
-      <Animated.View
-        entering={FadeIn.delay(100 * index)}
-        exiting={FadeOut}
-        layout={Layout.delay(100)}
-      >
-        <Pressable
-          onPress={() => {
-            setSelectedData(item);
-            setModalVisible(!modalVisible);
-          }}
-        >
-          {item.itemType === "note" ? (
-            <ListTile item={item.item} />
-          ) : (
-            //@ts-ignore
-            <TodoTile item={item.item} />
-          )}
-        </Pressable>
-      </Animated.View>
-    );
+  const handleAddTodo = () => {
+    buttonPosition.value = 0;
+    console.log("add todo");
+    //@ts-ignore
+    animationRef.current.play();
+  };
+
+  const handleSubmitNote = () => {
+    console.log("Submit note");
   };
 
   const HomeContent = () => {
@@ -206,21 +130,7 @@ const Home = (props: Props) => {
         </View>
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable
-              onPress={() => {
-                setAddData({
-                  itemType: "note",
-                  item: {
-                    id: "",
-                    title: "",
-                    description: "",
-                    date: "",
-                    time: "",
-                  },
-                });
-                setAddNoteModalVisible(!addNoteModalVisible);
-              }}
-            >
+            <Pressable onPress={handleAddNote}>
               <Image
                 source={require("../../assets/note.png")}
                 style={styles.noteImage}
@@ -230,24 +140,7 @@ const Home = (props: Props) => {
         </Animated.View>
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={todoButtonAnimatedStyle}>
-            <Pressable
-              onPress={() => {
-                setAddData({
-                  item: {
-                    id: "",
-                    title: "",
-                    description: "",
-                    date: "",
-                    time: "",
-                    dueDate: "",
-                    dueTime: "",
-                    priority: "",
-                  },
-                  itemType: "todo",
-                });
-                setAddTodoModalVisible(!addTodoModalVisible);
-              }}
-            >
+            <Pressable onPress={handleAddTodo}>
               <Image
                 source={require("../../assets/todo.png")}
                 style={styles.noteImage}
@@ -255,54 +148,7 @@ const Home = (props: Props) => {
             </Pressable>
           </Animated.View>
         </Animated.View>
-        <AddNotesModalComponent
-          addNoteModalVisible={addNoteModalVisible}
-          setAddNoteModalVisible={setAddNoteModalVisible}
-          addData={addData}
-          setAddData={setAddData}
-        />
-        <AddTodosModalComponent
-          addTodoModalVisible={addTodoModalVisible}
-          setAddTodoModalVisible={setAddTodoModalVisible}
-          addData={addData}
-          setAddData={setAddData}
-        />
-        {selectedData?.itemType === "note" ? (
-          <ViewAndEditNoteModalComponent
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            selectedData={selectedData}
-            setSelectedData={setSelectedData}
-          />
-        ) : (
-          <ViewAndEditTodoModalComponent
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            selectedData={selectedData}
-            setSelectedData={setSelectedData}
-          />
-        )}
-        <View style={{ marginTop: 20 }}>
-          {/* <SwipeableFlatList
-            keyExtractor={extractItemKey}
-            data={data}
-            renderItem={renderItem}
-            maxSwipeDistance={80}
-            renderQuickActions={({
-              index,
-              item,
-            }: {
-              index: any;
-              item: commonListTodo;
-            }) => QuickActions(index, item)}
-            contentContainerStyle={styles.contentContainerStyle}
-            shouldBounceOnMount={true}
-          /> */}
-        </View>
+        <View style={{ marginTop: 20 }}></View>
         <AnimatedList data={data} deleteFunction={deleteItem} />
       </View>
     );
@@ -310,6 +156,13 @@ const Home = (props: Props) => {
 
   return (
     <SafeAreaView style={styles.wrapper}>
+      <AddNote
+        visible={addNoteVisible}
+        onCancel={() => {
+          setAddNoteVisible(false);
+        }}
+        onSubmit={handleSubmitNote}
+      />
       <Header />
       <HomeContent />
     </SafeAreaView>

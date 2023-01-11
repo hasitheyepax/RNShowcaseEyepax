@@ -16,9 +16,11 @@
     "@reduxjs/toolkit": "^1.9.1",
     "expo": "~47.0.9",
     "expo-image-picker": "~14.0.2",
+    "expo-linear-gradient": "~12.0.1",
     "expo-status-bar": "~1.4.2",
     "formik": "^2.2.9",
     "lottie-react-native": "^5.1.4",
+    "moment": "^2.29.4",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-native": "0.70.5",
@@ -33,6 +35,7 @@
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
     "redux-persist": "^6.0.0",
+    "uuidv4": "^6.2.13",
     "yup": "^0.32.11"
   },
   "devDependencies": {
