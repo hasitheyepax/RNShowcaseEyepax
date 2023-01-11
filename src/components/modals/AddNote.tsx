@@ -1,11 +1,8 @@
 import {
   KeyboardAvoidingView,
-  // Modal,
   Platform,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import React from "react";
