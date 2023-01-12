@@ -41,6 +41,7 @@ import AddNotesModalComponent from "../components/AddNotesModalComponent";
 import AddTodosModalComponent from "../components/AddTodosModalComponents";
 import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
 import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
+import { getNotes, getTodos } from "../helpers/asyncStorage";
 
 type Props = {};
 
@@ -55,6 +56,7 @@ const Home = (props: Props) => {
   const [addTodoModalVisible, setAddTodoModalVisible] = useState(false);
   const [selectedData, setSelectedData] = useState<commonListTodo>();
   const [addData, setAddData] = useState<commonListTodo>();
+  const [refreshScreen, setRefreshScreen] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
 
@@ -67,18 +69,35 @@ const Home = (props: Props) => {
   const { height, width } = Dimensions.get("window");
 
   useEffect(() => {
+    getDataFromStorage();
+  }, [isFocused, refreshScreen]);
+
+  const getDataFromStorage = async () => {
+    let todosFromStorage = await getTodos();
+    let notesFromStorage = await getNotes();
     let notes: commonListTodo[] = [];
     let todos: commonListTodo[] = [];
-    for (let i = 0; i < noteMock.length; i++) {
-      let tempNote: commonListTodo = { itemType: "note", item: noteMock[i] };
-      notes.push(tempNote);
+    if (todosFromStorage) {
+      for (let i = 0; i < todosFromStorage.length; i++) {
+        let tempTodo: commonListTodo = {
+          itemType: "todo",
+          item: todosFromStorage[i],
+        };
+        todos.push(tempTodo);
+      }
     }
-    for (let i = 0; i < todoMock.length; i++) {
-      let tempTodo: commonListTodo = { itemType: "todo", item: todoMock[i] };
-      todos.push(tempTodo);
+    if (notesFromStorage) {
+      console.log(notesFromStorage);
+      for (let i = 0; i < notesFromStorage.length; i++) {
+        let tempNote: commonListTodo = {
+          itemType: "note",
+          item: notesFromStorage[i],
+        };
+        notes.push(tempNote);
+      }
     }
     setData([...notes, ...todos]);
-  }, []);
+  };
 
   useEffect(() => {
     if (animationRef?.current && isFocused) {
@@ -93,7 +112,7 @@ const Home = (props: Props) => {
       opacity: withTiming(buttonPosition.value, { duration: 500 }),
       transform: [
         {
-          translateY: withTiming(interpolation + 10, { duration: 1000 }),
+          translateY: withTiming(interpolation + 110, { duration: 1000 }),
         },
         {
           translateX: withTiming(interpolation + 10, { duration: 500 }),
@@ -110,7 +129,7 @@ const Home = (props: Props) => {
       opacity: withTiming(buttonPosition.value, { duration: 900 }),
       transform: [
         {
-          translateY: withTiming(interpolation - 60, { duration: 1500 }),
+          translateY: withTiming(interpolation + 40, { duration: 1500 }),
         },
         {
           translateX: withTiming(interpolation + 50, { duration: 800 }),
@@ -124,7 +143,12 @@ const Home = (props: Props) => {
   const Header: React.FC = () => {
     return (
       <View style={styles.headerContainer}>
-        <View style={styles.headerTextContainer}>
+        <View
+          style={styles.headerTextContainer}
+          accessible={true}
+          accessibilityLabel={"Home Page"}
+          accessibilityHint={"Your are in home page"}
+        >
           <Text style={styles.headerText}>{`Home`}</Text>
         </View>
       </View>
@@ -151,8 +175,13 @@ const Home = (props: Props) => {
 
   const HomeContent = () => {
     return (
-      <View style={styles.container}>
-        <View style={styles.addButtonContainer}>
+      <>
+        <View
+          style={styles.addButtonContainer}
+          accessible={true}
+          accessibilityLabel={"Add button"}
+          accessibilityHint={"Press this button to add notes and todos"}
+        >
           <Pressable
             onPress={() => {
               buttonPosition.value === 1
@@ -219,68 +248,74 @@ const Home = (props: Props) => {
             </Pressable>
           </Animated.View>
         </Animated.View>
-        <AddNotesModalComponent
-          addNoteModalVisible={addNoteModalVisible}
-          setAddNoteModalVisible={setAddNoteModalVisible}
-          addData={addData}
-          setAddData={setAddData}
-        />
-        <AddTodosModalComponent
-          addTodoModalVisible={addTodoModalVisible}
-          setAddTodoModalVisible={setAddTodoModalVisible}
-          addData={addData}
-          setAddData={setAddData}
-        />
-        {selectedData?.itemType === "note" ? (
-          <ViewAndEditNoteModalComponent
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            selectedData={selectedData}
-            setSelectedData={setSelectedData}
+        <View style={styles.container}>
+          <AddNotesModalComponent
+            addNoteModalVisible={addNoteModalVisible}
+            setAddNoteModalVisible={setAddNoteModalVisible}
+            addData={addData}
+            setAddData={setAddData}
+            refreshScreen={refreshScreen}
+            setRefreshScreen={setRefreshScreen}
           />
-        ) : (
-          <ViewAndEditTodoModalComponent
-            modalVisible={modalVisible}
-            setModalVisible={setModalVisible}
-            editMode={editMode}
-            setEditMode={setEditMode}
-            selectedData={selectedData}
-            setSelectedData={setSelectedData}
+          <AddTodosModalComponent
+            addTodoModalVisible={addTodoModalVisible}
+            setAddTodoModalVisible={setAddTodoModalVisible}
+            addData={addData}
+            setAddData={setAddData}
+            refreshScreen={refreshScreen}
+            setRefreshScreen={setRefreshScreen}
           />
-        )}
-
-        <SwipeableFlatList
-          keyExtractor={extractItemKey}
-          data={data}
-          renderItem={({ item }: { item: commonListTodo }) => (
-            <Pressable
-              onPress={() => {
-                setSelectedData(item);
-                setModalVisible(!modalVisible);
-              }}
-            >
-              {item.itemType === "note" ? (
-                <ListTile item={item.item} />
-              ) : (
-                //@ts-ignore
-                <TodoTile item={item.item} />
-              )}
-            </Pressable>
+          {selectedData?.itemType === "note" ? (
+            <ViewAndEditNoteModalComponent
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              selectedData={selectedData}
+              setSelectedData={setSelectedData}
+            />
+          ) : (
+            <ViewAndEditTodoModalComponent
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              editMode={editMode}
+              setEditMode={setEditMode}
+              selectedData={selectedData}
+              setSelectedData={setSelectedData}
+            />
           )}
-          maxSwipeDistance={80}
-          renderQuickActions={({
-            index,
-            item,
-          }: {
-            index: any;
-            item: commonListTodo;
-          }) => QuickActions(index, item)}
-          contentContainerStyle={styles.contentContainerStyle}
-          shouldBounceOnMount={true}
-        />
-      </View>
+
+          <SwipeableFlatList
+            keyExtractor={extractItemKey}
+            data={data}
+            renderItem={({ item }: { item: commonListTodo }) => (
+              <Pressable
+                onPress={() => {
+                  setSelectedData(item);
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                {item.itemType === "note" ? (
+                  <ListTile item={item.item} />
+                ) : (
+                  //@ts-ignore
+                  <TodoTile item={item.item} />
+                )}
+              </Pressable>
+            )}
+            maxSwipeDistance={80}
+            renderQuickActions={({
+              index,
+              item,
+            }: {
+              index: any;
+              item: commonListTodo;
+            }) => QuickActions(index, item)}
+            contentContainerStyle={styles.contentContainerStyle}
+            shouldBounceOnMount={true}
+          />
+        </View>
+      </>
     );
   };
 
@@ -298,6 +333,7 @@ const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
       backgroundColor: theme.colors.background,
+      flex: 1,
     },
     wrapper: {
       flex: 1,
@@ -356,7 +392,7 @@ const themeStyles = (theme: theme) =>
       width: 50,
       zIndex: 20,
       right: 30,
-      bottom: 120,
+      bottom: 20,
     },
     addNoteButtonContainer: {
       position: "absolute",

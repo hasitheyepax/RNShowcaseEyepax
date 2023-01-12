@@ -7,3 +7,5 @@ export enum Navigation {
 }
 
 export const ASYNC_KEY = "@EPXRNSHWC";
+export const NOTE_KEY = "@EPXRNSHWCNOTE";
+export const TODO_KEY = "@EPXRNSHWCTODO";

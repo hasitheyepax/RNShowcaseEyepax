@@ -16,6 +16,7 @@ import { todos } from "../config/types/todos";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { addTodo, getTodos } from "../helpers/asyncStorage";
 
 const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
   const { theme } = useContext(ThemeContext);
@@ -41,6 +42,16 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
     },
     itemType: "todo",
   });
+  let finalInputs: todos = {
+    id: "",
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    dueDate: "",
+    dueTime: "",
+    priority: "medium",
+  };
 
   const showDatePicker = () => {
     setPickerMode("date");
@@ -82,6 +93,18 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
         item: { ...inputs.item, dueTime: time },
       });
     }
+  };
+
+  const addNewTodo = async () => {
+    var id = moment().unix();
+    const tempId = `${id}`;
+    const dateTimeNow = moment();
+    const date = moment(dateTimeNow).format("Do MMM YYYY");
+    const time = moment(dateTimeNow).format("LT");
+    finalInputs = { ...inputs.item, date: date, time: time, id: tempId };
+    await addTodo(finalInputs);
+    props.setAddTodoModalVisible(!props.addTodoModalVisible);
+    props.setRefreshScreen(!props.refreshScreen);
   };
 
   return (
@@ -182,7 +205,7 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
               }}
             />
 
-            <TouchableWithoutFeedback onPress={showDatePicker}>
+            <Pressable onPress={showDatePicker}>
               <TextInput
                 placeholder="Due Date"
                 placeholderTextColor="black"
@@ -190,8 +213,8 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
                 style={styles.textInput}
                 value={inputs.item.dueDate}
               />
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={showTimePicker}>
+            </Pressable>
+            <Pressable onPress={showTimePicker}>
               <TextInput
                 placeholder="Due Time"
                 placeholderTextColor="black"
@@ -199,13 +222,13 @@ const AddTodosModalComponent: React.FC<AddTodoModalInterface> = (props) => {
                 editable={false}
                 value={inputs.item.dueTime}
               />
-            </TouchableWithoutFeedback>
+            </Pressable>
           </View>
 
           <View style={styles.modalButtonContainer}>
             <Pressable
               style={[styles.buttonModal, styles.buttonClose]}
-              onPress={() => props.setAddData(inputs)}
+              onPress={addNewTodo}
             >
               <Text style={styles.textStyle}>{"Add"}</Text>
             </Pressable>
