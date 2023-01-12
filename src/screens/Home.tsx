@@ -1,27 +1,15 @@
-import ListTile from "../components/ListTile";
-import noteMock from "../mocks/notesMock";
 import React, { useState, useContext, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
   Text,
   Pressable,
-  Modal,
-  Alert,
-  TextInput,
   Image,
   SafeAreaView,
   Dimensions,
 } from "react-native";
-
-//@ts-ignore
-import SwipeableFlatList from "react-native-swipeable-list";
-import { note } from "../config/types/note";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
-import { todos } from "../config/types/todos";
-import todoMock from "../mocks/todosMock";
-import TodoTile from "../components/TodoTile";
 import { commonListTodo } from "../config/types/commonListTodo";
 import Lottie from "lottie-react-native";
 import { useIsFocused } from "@react-navigation/native";
@@ -31,23 +19,19 @@ import Animated, {
   useAnimatedStyle,
   interpolate,
   withTiming,
-  withDelay,
-  runOnJS,
-  withSequence,
-  withSpring,
-  add,
 } from "react-native-reanimated";
 import AddNotesModalComponent from "../components/AddNotesModalComponent";
 import AddTodosModalComponent from "../components/AddTodosModalComponents";
 import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
 import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
 import { getNotes, getTodos } from "../helpers/asyncStorage";
+import AnimatedList from "../components/animatedList/AnimatedList";
+import AddNote from "../components/modals/AddNote";
+import { useAppSelector } from "../redux/hooks";
+import { selectTasks } from "../redux/slices/taskSlice";
+import stringUtils from "../utils/stringUtils";
 
 type Props = {};
-
-const extractItemKey = (item: commonListTodo) => {
-  return item.item.id?.toString();
-};
 
 const Home = (props: Props) => {
   const [data, setData] = useState<commonListTodo[]>([]);
@@ -57,8 +41,9 @@ const Home = (props: Props) => {
   const [selectedData, setSelectedData] = useState<commonListTodo>();
   const [addData, setAddData] = useState<commonListTodo>();
   const [refreshScreen, setRefreshScreen] = useState(false);
+  const [addNoteVisible, setAddNoteVisible] = useState(false);
 
-  const [editMode, setEditMode] = useState(false);
+  const tasks = useAppSelector(selectTasks);
 
   const { theme } = useContext(ThemeContext);
 
@@ -87,7 +72,6 @@ const Home = (props: Props) => {
       }
     }
     if (notesFromStorage) {
-      console.log(notesFromStorage);
       for (let i = 0; i < notesFromStorage.length; i++) {
         let tempNote: commonListTodo = {
           itemType: "note",
@@ -106,16 +90,16 @@ const Home = (props: Props) => {
     }
   }, [isFocused]);
 
-  const buttonsAnimatedStyle = useAnimatedStyle(() => {
+  const todoButtonAnimatedStyle = useAnimatedStyle(() => {
     const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
     return {
-      opacity: withTiming(buttonPosition.value, { duration: 500 }),
+      opacity: withTiming(buttonPosition.value, { duration: 300 }),
       transform: [
         {
-          translateY: withTiming(interpolation + 110, { duration: 1000 }),
+          translateY: withTiming(interpolation - 60, { duration: 550 }),
         },
         {
-          translateX: withTiming(interpolation + 10, { duration: 500 }),
+          translateX: withTiming(interpolation + 50, { duration: 500 }),
         },
       ],
       zIndex: 16,
@@ -123,16 +107,16 @@ const Home = (props: Props) => {
     };
   });
 
-  const todoButtonAnimatedStyle = useAnimatedStyle(() => {
+  const buttonsAnimatedStyle = useAnimatedStyle(() => {
     const interpolation = interpolate(buttonPosition.value, [0, 1], [0, -50]);
     return {
-      opacity: withTiming(buttonPosition.value, { duration: 900 }),
+      opacity: withTiming(buttonPosition.value, { duration: 150 }),
       transform: [
         {
-          translateY: withTiming(interpolation + 40, { duration: 1500 }),
+          translateY: withTiming(interpolation + 10, { duration: 500 }),
         },
         {
-          translateX: withTiming(interpolation + 50, { duration: 800 }),
+          translateX: withTiming(interpolation + 10, { duration: 500 }),
         },
       ],
       zIndex: 16,
@@ -146,8 +130,8 @@ const Home = (props: Props) => {
         <View
           style={styles.headerTextContainer}
           accessible={true}
-          accessibilityLabel={"Home Page"}
-          accessibilityHint={"Your are in home page"}
+          accessibilityLabel={stringUtils.HOME_SCREEN_TITLE_ACCESSIBILITY_LABLE}
+          accessibilityHint={stringUtils.HOME_SCREEN_TITLE_ACCESSIBILITY_HINT}
         >
           <Text style={styles.headerText}>{`Home`}</Text>
         </View>
@@ -155,39 +139,41 @@ const Home = (props: Props) => {
     );
   };
 
-  const deleteItem = (itemId: any) => {
-    const newState = [...data];
-    const filteredState = newState.filter((item) => item.item.id !== itemId);
-    return setData(filteredState);
+  const handleAddNote = () => {
+    buttonPosition.value = 0;
+    setAddNoteVisible(true);
+    //@ts-ignore
+    animationRef.current.play();
   };
 
-  const QuickActions = (index: any, qaItem: commonListTodo) => {
-    return (
-      <View style={styles.qaContainer}>
-        <View style={[styles.button]}>
-          <Pressable onPress={() => deleteItem(qaItem.item.id)}>
-            <Text style={[styles.buttonText, styles.button3Text]}>Delete</Text>
-          </Pressable>
-        </View>
-      </View>
-    );
+  const handleAddTodo = () => {
+    buttonPosition.value = 0;
+    //@ts-ignore
+    animationRef.current.play();
+  };
+
+  const handleSubmitNote = () => {
+    setAddNoteVisible(false);
   };
 
   const HomeContent = () => {
     return (
       <>
-        <View
-          style={styles.addButtonContainer}
-          accessible={true}
-          accessibilityLabel={"Add button"}
-          accessibilityHint={"Press this button to add notes and todos"}
-        >
+        <View style={styles.addButtonContainer}>
           <Pressable
             onPress={() => {
               buttonPosition.value === 1
                 ? (buttonPosition.value = 0)
                 : (buttonPosition.value = 1);
             }}
+            accessible={true}
+            focusable={true}
+            accessibilityLabel={
+              stringUtils.HOME_SCREEN_ADD_NEW_NOTES_OR_TODOS_BUTTON_LABLE
+            }
+            accessibilityHint={
+              stringUtils.HOME_SCREEN_ADD_NEW_NOTES_OR_TODOS_BUTTON_HINT
+            }
           >
             <Lottie
               ref={animationRef}
@@ -200,19 +186,15 @@ const Home = (props: Props) => {
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={buttonsAnimatedStyle}>
             <Pressable
-              onPress={() => {
-                setAddData({
-                  itemType: "note",
-                  item: {
-                    id: "",
-                    title: "",
-                    description: "",
-                    date: "",
-                    time: "",
-                  },
-                });
-                setAddNoteModalVisible(!addNoteModalVisible);
-              }}
+              onPress={handleAddNote}
+              accessible={true}
+              focusable={true}
+              accessibilityLabel={
+                stringUtils.HOME_SCREEN_ADD_NEW_NOTES_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.HOME_SCREEN_ADD_NEW_NOTES_BUTTON_HINT
+              }
             >
               <Image
                 source={require("../../assets/note.png")}
@@ -224,22 +206,15 @@ const Home = (props: Props) => {
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={todoButtonAnimatedStyle}>
             <Pressable
-              onPress={() => {
-                setAddData({
-                  item: {
-                    id: "",
-                    title: "",
-                    description: "",
-                    date: "",
-                    time: "",
-                    dueDate: "",
-                    dueTime: "",
-                    priority: "",
-                  },
-                  itemType: "todo",
-                });
-                setAddTodoModalVisible(!addTodoModalVisible);
-              }}
+              onPress={handleAddTodo}
+              accessible={true}
+              focusable={true}
+              accessibilityLabel={
+                stringUtils.HOME_SCREEN_ADD_NEW_TODOS_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.HOME_SCREEN_ADD_NEW_TODOS_BUTTON_HINT
+              }
             >
               <Image
                 source={require("../../assets/todo.png")}
@@ -248,79 +223,22 @@ const Home = (props: Props) => {
             </Pressable>
           </Animated.View>
         </Animated.View>
-        <View style={styles.container}>
-          <AddNotesModalComponent
-            addNoteModalVisible={addNoteModalVisible}
-            setAddNoteModalVisible={setAddNoteModalVisible}
-            addData={addData}
-            setAddData={setAddData}
-            refreshScreen={refreshScreen}
-            setRefreshScreen={setRefreshScreen}
-          />
-          <AddTodosModalComponent
-            addTodoModalVisible={addTodoModalVisible}
-            setAddTodoModalVisible={setAddTodoModalVisible}
-            addData={addData}
-            setAddData={setAddData}
-            refreshScreen={refreshScreen}
-            setRefreshScreen={setRefreshScreen}
-          />
-          {selectedData?.itemType === "note" ? (
-            <ViewAndEditNoteModalComponent
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
-              editMode={editMode}
-              setEditMode={setEditMode}
-              selectedData={selectedData}
-              setSelectedData={setSelectedData}
-            />
-          ) : (
-            <ViewAndEditTodoModalComponent
-              modalVisible={modalVisible}
-              setModalVisible={setModalVisible}
-              editMode={editMode}
-              setEditMode={setEditMode}
-              selectedData={selectedData}
-              setSelectedData={setSelectedData}
-            />
-          )}
 
-          <SwipeableFlatList
-            keyExtractor={extractItemKey}
-            data={data}
-            renderItem={({ item }: { item: commonListTodo }) => (
-              <Pressable
-                onPress={() => {
-                  setSelectedData(item);
-                  setModalVisible(!modalVisible);
-                }}
-              >
-                {item.itemType === "note" ? (
-                  <ListTile item={item.item} />
-                ) : (
-                  //@ts-ignore
-                  <TodoTile item={item.item} />
-                )}
-              </Pressable>
-            )}
-            maxSwipeDistance={80}
-            renderQuickActions={({
-              index,
-              item,
-            }: {
-              index: any;
-              item: commonListTodo;
-            }) => QuickActions(index, item)}
-            contentContainerStyle={styles.contentContainerStyle}
-            shouldBounceOnMount={true}
-          />
-        </View>
+        <View style={{ marginTop: 20 }}></View>
+        <AnimatedList data={tasks} />
       </>
     );
   };
 
   return (
     <SafeAreaView style={styles.wrapper}>
+      <AddNote
+        visible={addNoteVisible}
+        onCancel={() => {
+          setAddNoteVisible(false);
+        }}
+        onSubmit={handleSubmitNote}
+      />
       <Header />
       <HomeContent />
     </SafeAreaView>
@@ -344,8 +262,7 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       alignItems: "center",
       // flex: 1,
-      // backgroundColor: "red",
-      height: 70,
+      // height: 70,
     },
     headerTextContainer: {
       // flex: 1,
@@ -384,15 +301,15 @@ const themeStyles = (theme: theme) =>
     contentContainerStyle: {
       flexGrow: 1,
       backgroundColor: theme.colors.background,
-      paddingBottom: 10,
+      paddingBottom: 20,
     },
     addButtonContainer: {
       position: "absolute",
       height: 50,
       width: 50,
-      zIndex: 20,
+      zIndex: 25,
       right: 30,
-      bottom: 20,
+      bottom: 30,
     },
     addNoteButtonContainer: {
       position: "absolute",
@@ -400,7 +317,7 @@ const themeStyles = (theme: theme) =>
       width: 50,
       zIndex: 16,
       right: 30,
-      bottom: 120,
+      bottom: 30,
     },
     animatedIcon: {
       height: 80,

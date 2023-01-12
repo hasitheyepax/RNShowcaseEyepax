@@ -28,6 +28,7 @@ import { addUser, clearAsyncStorage, getUsers } from "../helpers/asyncStorage";
 import Toast from "react-native-toast-message";
 import { useAppDispatch } from "../redux/hooks";
 import { login } from "../redux/slices/authSlice";
+import stringUtils from "../utils/stringUtils";
 
 type Props = {};
 
@@ -38,6 +39,7 @@ const Login = (props: Props) => {
   const imagePosition = useSharedValue(1);
   const formButtonScale = useSharedValue(1);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [closeButtonAccessible, setCloseButtonAccessible] = useState(false);
 
   const [inputs, setInputs] = useState({
     email: "",
@@ -106,6 +108,7 @@ const Login = (props: Props) => {
   });
 
   const loginHandler = () => {
+    setCloseButtonAccessible(false);
     imagePosition.value = 0;
     if (isRegistering) {
       runOnJS(setIsRegistering)(false);
@@ -113,6 +116,7 @@ const Login = (props: Props) => {
   };
 
   const registerHandler = () => {
+    setCloseButtonAccessible(false);
     imagePosition.value = 0;
     if (!isRegistering) {
       runOnJS(setIsRegistering)(true);
@@ -197,8 +201,12 @@ const Login = (props: Props) => {
           </Svg>
         </Animated.View>
         <Pressable
+          accessibilityElementsHidden={closeButtonAccessible}
+          accessibilityLabel={stringUtils.LOGIN_SCREEN_CLOSE_BUTTON_LABLE}
+          accessibilityHint={stringUtils.LOGIN_SCREEN_CLOSE_BUTTON_HINT}
           style={{ zIndex: 100 }}
           onPress={() => {
+            setCloseButtonAccessible(true);
             imagePosition.value = 1;
             Keyboard.dismiss();
             setInputs({
@@ -233,17 +241,40 @@ const Login = (props: Props) => {
 
         <View style={styles.bottomContainer}>
           <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable style={styles.button} onPress={loginHandler}>
+            <Pressable
+              style={styles.button}
+              onPress={loginHandler}
+              accessible={true}
+              accessibilityLabel={
+                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_LOGIN_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_LOGIN_BUTTON_HINT
+              }
+            >
               <Text style={styles.buttonText}>LOG IN</Text>
             </Pressable>
           </Animated.View>
           <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable style={styles.button} onPress={registerHandler}>
+            <Pressable
+              style={styles.button}
+              onPress={registerHandler}
+              accessible={true}
+              accessibilityLabel={
+                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_REGISTER_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_REGISTER_BUTTON_HINT
+              }
+            >
               <Text style={styles.buttonText}>REGISTER</Text>
             </Pressable>
           </Animated.View>
           <Animated.View style={[styles.formInputContainer, formAnimatedStyle]}>
             <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
               placeholder="Email"
               placeholderTextColor="black"
               style={styles.textInput}
@@ -257,6 +288,13 @@ const Login = (props: Props) => {
             />
             {isRegistering && (
               <TextInput
+                accessible={true}
+                accessibilityLabel={
+                  stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_LABLE
+                }
+                accessibilityHint={
+                  stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_HINT
+                }
                 placeholder="Full Name"
                 placeholderTextColor="black"
                 style={styles.textInput}
@@ -270,6 +308,9 @@ const Login = (props: Props) => {
               />
             )}
             <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT}
               placeholder="Password"
               placeholderTextColor="black"
               style={styles.textInput}
@@ -283,6 +324,17 @@ const Login = (props: Props) => {
               secureTextEntry
             />
             <Pressable
+              accessible={true}
+              accessibilityLabel={
+                !isRegistering
+                  ? stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
+                  : stringUtils.LOGIN_SCREEN_REGISTER_BUTTON_LABLE
+              }
+              accessibilityHint={
+                !isRegistering
+                  ? stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT
+                  : stringUtils.LOGIN_SCREEN_REGISTER_BUTTON_HINT
+              }
               onPress={() => {
                 formButtonScale.value = withSequence(
                   withSpring(1.05, { damping: 1, overshootClamping: true }),

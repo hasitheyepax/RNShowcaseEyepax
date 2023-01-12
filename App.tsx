@@ -1,3 +1,5 @@
+import "react-native-gesture-handler";
+import "react-native-get-random-values";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import { Provider } from "react-redux";
