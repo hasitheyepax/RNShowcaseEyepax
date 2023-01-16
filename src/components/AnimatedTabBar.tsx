@@ -57,7 +57,7 @@ export default function AnimatedTabBar({
         viewBox="0 0 110 60"
         style={[styles.activeBackground, animatedStyles]}
       >
-        <Background color="#82AAE3" />
+        <Background color="#FA8989" />
       </AnimatedSvg>
 
       <View style={styles.tabBarContainer}>

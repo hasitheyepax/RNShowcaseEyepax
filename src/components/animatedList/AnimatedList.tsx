@@ -22,6 +22,7 @@ import { timeStampToLocal } from "../../helpers/timeHelpers";
 import { useAppDispatch } from "../../redux/hooks";
 import { removeTask } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import stringUtils from "../../utils/stringUtils";
 
 type renderItemProps = {
   item: localTask;
@@ -50,13 +51,18 @@ const AnimatedList: React.FC<Props> = (props) => {
 
     const RightAction = () => {
       return (
-        <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
+        <TouchableWithoutFeedback
+          accessible={false}
+          onPress={() => handleDelete(item)}
+        >
           <Animated.View
+            focusable={false}
+            accessible={false}
             entering={FadeInUp.damping(1000)}
             style={styles.rightActionStyle}
           >
             <MaterialIcons name="delete-forever" size={36} color="#FFF" />
-            <Text style={styles.buttonText}>{`Delete`}</Text>
+            <Text accessible={false} style={styles.buttonText}>{`Delete`}</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
       );
@@ -65,12 +71,16 @@ const AnimatedList: React.FC<Props> = (props) => {
     return (
       <Swipeable renderRightActions={RightAction}>
         <Animated.View
+          accessibilityLabel={stringUtils.HOME_SCREEN_NOTE_CARD_LABLE}
+          accessibilityHint={stringUtils.HOME_SCREEN_NOTE_CARD_HINT}
           style={styles.listItem}
           entering={FadeIn.delay(100 * index)}
           layout={Layout.delay(200)}
           exiting={FadeOut}
         >
-          <Text style={styles.titleText}>{item.title}</Text>
+          <Text accessible={true} style={styles.titleText}>
+            {item.title}
+          </Text>
           {item.description && (
             <Text style={styles.descriptionText}>{item.description}</Text>
           )}

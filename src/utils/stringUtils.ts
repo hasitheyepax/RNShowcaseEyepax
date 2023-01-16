@@ -31,6 +31,8 @@ const stringUtils = {
   LOGIN_SCREEN_LOGIN_BUTTON_HINT: "Press this button to login",
   LOGIN_SCREEN_REGISTER_BUTTON_LABLE: "Register button",
   LOGIN_SCREEN_REGISTER_BUTTON_HINT: "Press this button to register",
+  HOME_SCREEN_NOTE_CARD_LABLE: "This is a note",
+  HOME_SCREEN_NOTE_CARD_HINT: "You can swipe right the note and delete it",
 };
 
 export default stringUtils;
