@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useRef, useEffect, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
-import { commonListTodo } from "../config/types/commonListTodo";
 import Lottie from "lottie-react-native";
 import { useIsFocused } from "@react-navigation/native";
 import addIcon from "../components/assets/icons/add.icon.json";
@@ -25,9 +24,7 @@ import { useAppSelector } from "../redux/hooks";
 import { selectTasks } from "../redux/slices/taskSlice";
 import { localTask } from "../config/types/localTask";
 
-type Props = {};
-
-const Home = (props: Props) => {
+export const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
   const [activeItem, setActiveItem] = useState<localTask | null>(null);
 
@@ -85,7 +82,7 @@ const Home = (props: Props) => {
     };
   });
 
-  const Header: React.FC = () => {
+  const header = useMemo(() => {
     return (
       <View style={styles.headerContainer}>
         <View style={styles.headerTextContainer}>
@@ -93,7 +90,7 @@ const Home = (props: Props) => {
         </View>
       </View>
     );
-  };
+  }, []);
 
   const handleAddNote = () => {
     buttonPosition.value = 0;
@@ -114,7 +111,7 @@ const Home = (props: Props) => {
     if (activeItem) setActiveItem(null);
   };
 
-  const HomeContent = () => {
+  const homeContent = useMemo(() => {
     return (
       <View style={styles.container}>
         <View style={styles.addButtonContainer}>
@@ -161,7 +158,7 @@ const Home = (props: Props) => {
         />
       </View>
     );
-  };
+  }, [tasks]);
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -174,13 +171,11 @@ const Home = (props: Props) => {
         onSubmit={handleSubmitNote}
         item={activeItem}
       />
-      <Header />
-      <HomeContent />
+      {header}
+      {homeContent}
     </SafeAreaView>
   );
 };
-
-export default Home;
 
 const themeStyles = (theme: theme) =>
   StyleSheet.create({

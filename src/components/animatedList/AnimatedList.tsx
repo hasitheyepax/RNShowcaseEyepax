@@ -5,7 +5,6 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import ThemeContext from "../../contexts/themeContext";
@@ -17,7 +16,6 @@ import Animated, {
   Layout,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withSpring,
   withTiming,
 } from "react-native-reanimated";
@@ -53,6 +51,12 @@ const AnimatedList: React.FC<Props> = (props) => {
   const handleDelete = (task: localTask) => {
     dispatch(removeTask(task));
   };
+
+  const initialMode = useRef<boolean>(true);
+
+  useEffect(() => {
+    initialMode.current = false;
+  }, []);
 
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
@@ -94,10 +98,7 @@ const AnimatedList: React.FC<Props> = (props) => {
     const RightAction = () => {
       return (
         <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
-          <Animated.View
-            entering={FadeInUp.damping(1000)}
-            style={[styles.rightActionStyle, animatedStyle]}
-          >
+          <Animated.View style={[styles.rightActionStyle, animatedStyle]}>
             <MaterialIcons name="delete-forever" size={36} color="#FFF" />
             <Text style={styles.buttonText}>{`Delete`}</Text>
           </Animated.View>
@@ -120,7 +121,7 @@ const AnimatedList: React.FC<Props> = (props) => {
         <TouchableWithoutFeedback onPress={handleTouch}>
           <Animated.View
             style={[styles.listItem, animatedStyle]}
-            entering={FadeIn.delay(100 * index)}
+            entering={initialMode.current ? FadeIn.delay(100 * index) : FadeIn}
             exiting={FadeOut}
           >
             <Text style={styles.titleText}>{item.title}</Text>
@@ -157,9 +158,9 @@ const AnimatedList: React.FC<Props> = (props) => {
         style={styles.scrollView}
         contentContainerStyle={contentContainerStyle}
       >
-        {data.map((e, index) => {
-          return <RenderItem item={e} index={index} key={index.toString()} />;
-        })}
+        {data.map((item, index) => (
+          <RenderItem key={item.id} index={index} item={item} />
+        ))}
       </ScrollView>
     </View>
   );
