@@ -5,8 +5,9 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ThemeContext from "../../contexts/themeContext";
 import { theme } from "../../config/colors";
 import Animated, {
@@ -14,6 +15,11 @@ import Animated, {
   FadeInUp,
   FadeOut,
   Layout,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -32,10 +38,11 @@ type renderItemProps = {
 interface Props {
   data: localTask[];
   contentContainerStyle?: ViewStyle;
+  setActiveItem?: Function;
 }
 
 const AnimatedList: React.FC<Props> = (props) => {
-  const { data, contentContainerStyle } = props;
+  const { data, contentContainerStyle, setActiveItem } = props;
   const { theme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
 
@@ -47,13 +54,47 @@ const AnimatedList: React.FC<Props> = (props) => {
 
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
+    const [active, setActive] = useState(false);
+
+    const height = useSharedValue(120);
+    const opacity = useSharedValue(0);
+    const scale = useSharedValue(0);
+
+    const animatedStyle = useAnimatedStyle(() => {
+      if (active) {
+        height.value = withTiming(200);
+      } else {
+        height.value = withTiming(120);
+      }
+      return {
+        height: height.value,
+      };
+    }, [active]);
+
+    const animatedEditContainerStyle = useAnimatedStyle(() => {
+      if (active) {
+        opacity.value = withTiming(1);
+        scale.value = withSpring(1);
+      } else {
+        opacity.value = withTiming(0);
+        scale.value = withSpring(0);
+      }
+      return {
+        opacity: opacity.value,
+        transform: [
+          {
+            scale: scale.value,
+          },
+        ],
+      };
+    }, [active]);
 
     const RightAction = () => {
       return (
         <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
           <Animated.View
             entering={FadeInUp.damping(1000)}
-            style={styles.rightActionStyle}
+            style={[styles.rightActionStyle, animatedStyle]}
           >
             <MaterialIcons name="delete-forever" size={36} color="#FFF" />
             <Text style={styles.buttonText}>{`Delete`}</Text>
@@ -62,38 +103,56 @@ const AnimatedList: React.FC<Props> = (props) => {
       );
     };
 
+    const handleTouch = () => {
+      setActive(!active);
+    };
+
+    const handleEditTouch = () => {
+      setActiveItem?.(item);
+    };
+
     return (
       <Swipeable renderRightActions={RightAction}>
-        <Animated.View
-          style={styles.listItem}
-          entering={FadeIn.delay(100 * index)}
-          layout={Layout.delay(200)}
-          exiting={FadeOut}
-        >
-          <Text style={styles.titleText}>{item.title}</Text>
-          {item.description && (
-            <Text style={styles.descriptionText}>{item.description}</Text>
-          )}
-          <View style={styles.timestamp}>
-            <Text style={styles.regularText}>
-              {`${timeStampToLocal(item.createdTimestamp)}`}
-            </Text>
-          </View>
-          <View style={styles.icon}>
-            <SimpleLineIcons
-              name="note"
-              size={20}
-              color={theme.colors.background}
-            />
-          </View>
-        </Animated.View>
+        <TouchableWithoutFeedback onPress={handleTouch}>
+          <Animated.View
+            style={[styles.listItem, animatedStyle]}
+            entering={FadeIn.delay(100 * index)}
+            exiting={FadeOut}
+          >
+            <Text style={styles.titleText}>{item.title}</Text>
+            {item.description && (
+              <Text style={styles.descriptionText}>{item.description}</Text>
+            )}
+            <View style={styles.timestamp}>
+              <Text style={styles.regularText}>
+                {`${timeStampToLocal(item.createdTimestamp)}`}
+              </Text>
+            </View>
+            <View style={styles.icon}>
+              <SimpleLineIcons
+                name="note"
+                size={20}
+                color={theme.colors.background}
+              />
+            </View>
+            <Animated.View
+              style={[styles.editContainer, animatedEditContainerStyle]}
+              onTouchEnd={handleEditTouch}
+            >
+              <Text style={styles.editText}>{`Edit`}</Text>
+            </Animated.View>
+          </Animated.View>
+        </TouchableWithoutFeedback>
       </Swipeable>
     );
   };
 
   return (
-    <View style={[styles.container, contentContainerStyle]}>
-      <ScrollView style={styles.scrollView}>
+    <View style={[styles.container]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={contentContainerStyle}
+      >
         {data.map((e, index) => {
           return <RenderItem item={e} index={index} key={index.toString()} />;
         })}
@@ -165,6 +224,18 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
       top: 10,
       right: 10,
+    },
+    editContainer: {
+      flexDirection: "row",
+      backgroundColor: theme.colors.secondary,
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      borderBottomLeftRadius: 20,
+      padding: 10,
+    },
+    editText: {
+      color: theme.colors.text,
     },
   });
 

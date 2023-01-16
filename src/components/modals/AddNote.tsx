@@ -5,14 +5,14 @@ import {
   Text,
   View,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { localTask } from "../../config/types/localTask";
 import AppTextInput from "../textInput/AppTextInput";
 import ModalButton from "./ModalButton";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { useAppDispatch } from "../../redux/hooks";
-import { addTask } from "../../redux/slices/taskSlice";
+import { addTask, updateTask } from "../../redux/slices/taskSlice";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
 import Modal from "react-native-modal";
@@ -21,7 +21,7 @@ interface Props {
   visible: boolean;
   onCancel: Function;
   onSubmit: Function;
-  item?: localTask;
+  item?: localTask | null;
 }
 
 const validationSchema = yup.object({
@@ -29,13 +29,8 @@ const validationSchema = yup.object({
   description: yup.string(),
 });
 
-const initialFormValues = {
-  title: "",
-  description: "",
-};
-
 const AddNote: React.FC<Props> = (props) => {
-  const { visible, onCancel, onSubmit, item } = props;
+  let { visible, onCancel, onSubmit, item } = props;
   const dispatch = useAppDispatch();
 
   return (
@@ -45,17 +40,31 @@ const AddNote: React.FC<Props> = (props) => {
         style={styles.backdrop}
       >
         <Formik
-          initialValues={initialFormValues}
+          initialValues={{
+            title: item?.title || "",
+            description: item?.description || "",
+          }}
+          // enableReinitialize
           validationSchema={validationSchema}
           onSubmit={(values) => {
-            const task: localTask = {
-              id: uuidv4(),
-              title: values.title,
-              description: values.description,
-              type: "note",
-              createdTimestamp: moment.now(),
-            };
-            dispatch(addTask(task));
+            if (item) {
+              dispatch(
+                updateTask({
+                  ...item,
+                  title: values.title,
+                  description: values.description,
+                })
+              );
+            } else {
+              const task: localTask = {
+                id: uuidv4(),
+                title: values.title,
+                description: values.description,
+                type: "note",
+                createdTimestamp: moment.now(),
+              };
+              dispatch(addTask(task));
+            }
             onSubmit();
           }}
         >

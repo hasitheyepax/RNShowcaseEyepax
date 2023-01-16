@@ -23,11 +23,17 @@ import AnimatedList from "../components/animatedList/AnimatedList";
 import AddNote from "../components/modals/AddNote";
 import { useAppSelector } from "../redux/hooks";
 import { selectTasks } from "../redux/slices/taskSlice";
+import { localTask } from "../config/types/localTask";
 
 type Props = {};
 
 const Home = (props: Props) => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
+  const [activeItem, setActiveItem] = useState<localTask | null>(null);
+
+  useEffect(() => {
+    setAddNoteVisible(!!activeItem);
+  }, [activeItem]);
 
   const tasks = useAppSelector(selectTasks);
 
@@ -105,6 +111,7 @@ const Home = (props: Props) => {
 
   const handleSubmitNote = () => {
     setAddNoteVisible(false);
+    if (activeItem) setActiveItem(null);
   };
 
   const HomeContent = () => {
@@ -147,7 +154,11 @@ const Home = (props: Props) => {
           </Animated.View>
         </Animated.View>
         <View style={{ marginTop: 20 }}></View>
-        <AnimatedList data={tasks} />
+        <AnimatedList
+          data={tasks}
+          setActiveItem={setActiveItem}
+          contentContainerStyle={{ paddingBottom: 70 }}
+        />
       </View>
     );
   };
@@ -158,8 +169,10 @@ const Home = (props: Props) => {
         visible={addNoteVisible}
         onCancel={() => {
           setAddNoteVisible(false);
+          if (activeItem) setActiveItem(null);
         }}
         onSubmit={handleSubmitNote}
+        item={activeItem}
       />
       <Header />
       <HomeContent />
