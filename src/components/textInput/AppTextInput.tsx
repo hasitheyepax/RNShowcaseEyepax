@@ -13,11 +13,14 @@ interface AppTextInputProps extends TextInputProps {
 }
 
 const AppTextInput: React.FC<AppTextInputProps> = (props) => {
-  const { label } = props;
+  const { label, error } = props;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.labelText}>{label}</Text>
+      <View style={styles.labelContainer}>
+        <Text style={styles.labelText}>{label}</Text>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
       <TextInput style={styles.input} {...props} />
     </View>
   );
@@ -33,10 +36,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
   },
+  labelContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   labelText: {
     fontSize: 16,
     fontWeight: "700",
     color: "white",
+  },
+  errorText: {
+    fontSize: 12,
+    fontWeight: "300",
+    color: "red",
   },
   input: {
     height: 50,

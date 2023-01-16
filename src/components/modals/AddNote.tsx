@@ -25,7 +25,7 @@ interface Props {
 }
 
 const validationSchema = yup.object({
-  title: yup.string().required(),
+  title: yup.string().required("This is required"),
   description: yup.string(),
 });
 
