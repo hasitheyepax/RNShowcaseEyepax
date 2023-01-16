@@ -9,7 +9,7 @@ const Auth = () => {
     <Stack.Navigator>
       <Stack.Screen
         name={Navigation.login}
-        component={Screens.LoginScreen}
+        component={Screens.Login}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
