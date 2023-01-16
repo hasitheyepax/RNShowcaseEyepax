@@ -25,9 +25,10 @@ import { Swipeable } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { localTask } from "../../config/types/localTask";
 import { timeStampToLocal } from "../../helpers/timeHelpers";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeTask } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
 
 type renderItemProps = {
   item: localTask;
@@ -45,6 +46,7 @@ const AnimatedList: React.FC<Props> = (props) => {
   const { data, contentContainerStyle, setActiveItem } = props;
   const { theme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
+  const swipeToDeleteEnabled = useAppSelector(selectSwipeToDeleteEnabled);
 
   const styles = themeStyles(theme);
 
@@ -112,7 +114,9 @@ const AnimatedList: React.FC<Props> = (props) => {
     };
 
     return (
-      <Swipeable renderRightActions={RightAction}>
+      <Swipeable
+        renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
+      >
         <TouchableWithoutFeedback onPress={handleTouch}>
           <Animated.View
             style={[styles.listItem, animatedStyle]}
