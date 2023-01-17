@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useRef, useEffect, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
-import { commonListTodo } from "../config/types/commonListTodo";
 import Lottie from "lottie-react-native";
 import { useIsFocused } from "@react-navigation/native";
 import addIcon from "../components/assets/icons/add.icon.json";
@@ -29,19 +28,16 @@ import AnimatedList from "../components/animatedList/AnimatedList";
 import AddNote from "../components/modals/AddNote";
 import { useAppSelector } from "../redux/hooks";
 import { selectTasks } from "../redux/slices/taskSlice";
+import { localTask } from "../config/types/localTask";
 import stringUtils from "../utils/stringUtils";
 
-type Props = {};
-
-const Home = (props: Props) => {
-  const [data, setData] = useState<commonListTodo[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [addNoteModalVisible, setAddNoteModalVisible] = useState(false);
-  const [addTodoModalVisible, setAddTodoModalVisible] = useState(false);
-  const [selectedData, setSelectedData] = useState<commonListTodo>();
-  const [addData, setAddData] = useState<commonListTodo>();
-  const [refreshScreen, setRefreshScreen] = useState(false);
+export const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
+  const [activeItem, setActiveItem] = useState<localTask | null>(null);
+
+  useEffect(() => {
+    setAddNoteVisible(!!activeItem);
+  }, [activeItem]);
 
   const tasks = useAppSelector(selectTasks);
 
@@ -52,36 +48,6 @@ const Home = (props: Props) => {
   const isFocused = useIsFocused();
   const buttonPosition = useSharedValue(0);
   const { height, width } = Dimensions.get("window");
-
-  useEffect(() => {
-    getDataFromStorage();
-  }, [isFocused, refreshScreen]);
-
-  const getDataFromStorage = async () => {
-    let todosFromStorage = await getTodos();
-    let notesFromStorage = await getNotes();
-    let notes: commonListTodo[] = [];
-    let todos: commonListTodo[] = [];
-    if (todosFromStorage) {
-      for (let i = 0; i < todosFromStorage.length; i++) {
-        let tempTodo: commonListTodo = {
-          itemType: "todo",
-          item: todosFromStorage[i],
-        };
-        todos.push(tempTodo);
-      }
-    }
-    if (notesFromStorage) {
-      for (let i = 0; i < notesFromStorage.length; i++) {
-        let tempNote: commonListTodo = {
-          itemType: "note",
-          item: notesFromStorage[i],
-        };
-        notes.push(tempNote);
-      }
-    }
-    setData([...notes, ...todos]);
-  };
 
   useEffect(() => {
     if (animationRef?.current && isFocused) {
@@ -124,7 +90,7 @@ const Home = (props: Props) => {
     };
   });
 
-  const Header: React.FC = () => {
+  const header = useMemo(() => {
     return (
       <View style={styles.headerContainer}>
         <View
@@ -137,7 +103,7 @@ const Home = (props: Props) => {
         </View>
       </View>
     );
-  };
+  }, []);
 
   const handleAddNote = () => {
     buttonPosition.value = 0;
@@ -154,11 +120,12 @@ const Home = (props: Props) => {
 
   const handleSubmitNote = () => {
     setAddNoteVisible(false);
+    if (activeItem) setActiveItem(null);
   };
 
-  const HomeContent = () => {
+  const homeContent = useMemo(() => {
     return (
-      <>
+      <View style={styles.container}>
         <View style={styles.addButtonContainer}>
           <Pressable
             onPress={() => {
@@ -225,10 +192,14 @@ const Home = (props: Props) => {
         </Animated.View>
 
         <View style={{ marginTop: 20 }}></View>
-        <AnimatedList data={tasks} />
-      </>
+        <AnimatedList
+          data={tasks}
+          setActiveItem={setActiveItem}
+          contentContainerStyle={{ paddingBottom: 70 }}
+        />
+      </View>
     );
-  };
+  }, [tasks]);
 
   return (
     <SafeAreaView style={styles.wrapper}>
@@ -236,16 +207,16 @@ const Home = (props: Props) => {
         visible={addNoteVisible}
         onCancel={() => {
           setAddNoteVisible(false);
+          if (activeItem) setActiveItem(null);
         }}
         onSubmit={handleSubmitNote}
+        item={activeItem}
       />
-      <Header />
-      <HomeContent />
+      {header}
+      {homeContent}
     </SafeAreaView>
   );
 };
-
-export default Home;
 
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
