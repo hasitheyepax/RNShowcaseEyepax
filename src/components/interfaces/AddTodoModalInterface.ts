@@ -6,4 +6,6 @@ export interface AddTodoModalInterface {
   setAddTodoModalVisible: Dispatch<SetStateAction<boolean>>;
   addData: commonListTodo | undefined;
   setAddData: Dispatch<SetStateAction<commonListTodo | undefined>>;
+  refreshScreen: boolean;
+  setRefreshScreen: Dispatch<SetStateAction<boolean>>;
 }

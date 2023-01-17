@@ -24,7 +24,6 @@ import { login } from "../redux/slices/authSlice";
 import stringUtils from "../utils/stringUtils";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { Navigation } from "../config";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -32,11 +31,23 @@ import { RootStackParamList } from "../navigation/RootStackParams";
 
 type Props = {};
 
-type screenProp = StackNavigationProp<RootStackParamList, Navigation.login>;
+type screenProp = StackNavigationProp<
+  RootStackParamList,
+  Navigation.loginScreen
+>;
 const LoginScreen = (props: Props) => {
   const navigation = useNavigation<screenProp>();
+
+  const dispatch = useAppDispatch();
   const { theme } = useContext(ThemeContext);
   const formButtonScale = useSharedValue(1);
+
+  const [inputs, setInputs] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+  });
+
   const styles = themeStyles(theme);
 
   const formButtonAnimatedStyle = useAnimatedStyle(() => {
@@ -45,12 +56,43 @@ const LoginScreen = (props: Props) => {
     };
   });
 
-  const handleGotoRegister = () => {
-    navigation.navigate(Navigation.registerScreen);
+  const handleLogin = async () => {
+    const { email, password } = inputs;
+    const users = await getUsers();
+    if (!email || !password) {
+      if (!users) {
+        Toast.show({
+          type: "error",
+          text1: "Please fill both fields",
+          text2: "Email and Password are required!",
+        });
+      }
+    } else {
+      if (!users) {
+        Toast.show({
+          type: "error",
+          text1: "No users found",
+          text2: "Please register a user first!",
+        });
+      } else {
+        const user = users.find((e) => {
+          return e.email === email;
+        });
+        if (user?.password === password) {
+          dispatch(login());
+        } else {
+          Toast.show({
+            type: "error",
+            text1: "Invalid credentials",
+            text2: "Please check your email and password",
+          });
+        }
+      }
+    }
   };
 
-  const handleGotoLogin = () => {
-    navigation.navigate(Navigation.loginScreen);
+  const handleGotoRegister = () => {
+    navigation.navigate(Navigation.registerScreen);
   };
 
   return (
@@ -61,14 +103,53 @@ const LoginScreen = (props: Props) => {
         colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
         locations={[0.0087, 0.4479, 0.75]}
       >
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>{"Optimiser"}</Text>
+        </View>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../../assets/splash-new.png")}
+            source={require("../../assets/login.png")}
             style={styles.image}
           />
         </View>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>{"Optimiser"}</Text>
+        <View style={styles.blurViewContainer}>
+          <BlurView intensity={2} style={styles.textInputContainer}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
+              placeholder="Email"
+              placeholderTextColor="#FFFFFF"
+              style={styles.textInput}
+              value={inputs.email}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  email: text,
+                });
+              }}
+            />
+          </BlurView>
+        </View>
+        <View style={styles.blurViewContainer}>
+          <BlurView intensity={2} style={styles.textInputContainer}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT}
+              placeholder="Password"
+              placeholderTextColor="#FFFFFF"
+              style={styles.textInput}
+              value={inputs.password}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  password: text,
+                });
+              }}
+              secureTextEntry
+            />
+          </BlurView>
         </View>
         <Pressable
           accessible={true}
@@ -80,32 +161,19 @@ const LoginScreen = (props: Props) => {
               withSpring(1, { damping: 1, overshootClamping: true })
             );
 
-            handleGotoLogin();
+            handleLogin();
           }}
         >
           <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
             <Text style={styles.buttonText}>{"Login"}</Text>
           </Animated.View>
         </Pressable>
-        <Pressable
-          accessible={true}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-          onPress={() => {
-            formButtonScale.value = withSequence(
-              withSpring(1.05, { damping: 1, overshootClamping: true }),
-              withSpring(1, { damping: 1, overshootClamping: true })
-            );
-
-            handleGotoRegister();
-          }}
-        >
-          <Animated.View
-            style={[styles.formButtonRegister, formButtonAnimatedStyle]}
-          >
-            <Text style={styles.buttonText}>{"Register"}</Text>
-          </Animated.View>
-        </Pressable>
+        <View style={styles.textWrapper}>
+          <Text style={styles.textStyle}>{"Do not have an account?"}</Text>
+          <Pressable onPress={handleGotoRegister}>
+            <Text style={styles.registerText}>{"Register"}</Text>
+          </Pressable>
+        </View>
       </LinearGradient>
     </View>
   );
@@ -137,25 +205,24 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
     },
     headerContainer: {
-      top: 10,
+      top: 60,
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 100,
     },
     headerText: {
       fontSize: 30,
-      color: "#FA8989",
+      color: "white",
       fontWeight: "600",
     },
     imageContainer: {
       justifyContent: "center",
       alignItems: "center",
       top: 50,
-      // marginBottom: 100,
+      marginBottom: 50,
     },
     image: {
-      width: 297,
-      height: 297,
+      width: 193,
+      height: 345,
     },
     textInputContainer: {
       width: 0.9 * width,
@@ -220,16 +287,6 @@ const themeStyles = (theme: theme) =>
       borderRadius: 6,
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
-      marginTop: 20,
-    },
-    formButtonRegister: {
-      backgroundColor: "#7B8FFA",
-      height: 50,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 6,
-      width: 0.9 * width,
-      marginHorizontal: 0.05 * width,
-      marginTop: 20,
+      marginTop: 40,
     },
   });

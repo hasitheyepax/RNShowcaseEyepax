@@ -6,6 +6,7 @@ import {
   Button,
   Pressable,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
@@ -13,8 +14,11 @@ import { theme } from "../config/colors";
 import * as ImagePicker from "expo-image-picker";
 import { useAppDispatch } from "../redux/hooks";
 import { logout } from "../redux/slices/authSlice";
+import { LinearGradient } from "expo-linear-gradient";
 
 type Props = {};
+
+const { height, width } = Dimensions.get("window");
 
 const Profile = (props: Props) => {
   const { theme } = useContext(ThemeContext);
@@ -65,7 +69,7 @@ const Profile = (props: Props) => {
           <View style={styles.profilePicContainer}>
             {!image ? (
               <Image
-                source={require("../../assets/app-icon.png")}
+                source={require("../../assets/profile-pic.png")}
                 style={styles.image}
               />
             ) : (
@@ -100,8 +104,19 @@ const Profile = (props: Props) => {
 
   return (
     <SafeAreaView style={styles.wrapper}>
-      <Header />
-      <ProfileContent />
+      <View style={styles.bottom}></View>
+      <LinearGradient
+        style={styles.gradientContainer}
+        colors={[
+          "#002B5C",
+          "rgba(123, 143, 250, 0.85)",
+          "rgba(250, 137, 137, 0)",
+        ]}
+        locations={[0, 0.3385, 1]}
+      >
+        <Header />
+        <ProfileContent />
+      </LinearGradient>
     </SafeAreaView>
   );
 };
@@ -114,11 +129,11 @@ const themeStyles = (theme: theme) =>
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.colors.background,
+      // backgroundColor: theme.colors.background,
     },
     wrapper: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      // backgroundColor: theme.colors.background,
     },
     headerContainer: {
       marginTop: 20,
@@ -229,5 +244,19 @@ const themeStyles = (theme: theme) =>
     // },
     logoutText: {
       color: theme.colors.rawText,
+    },
+    gradientContainer: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      flex: 1,
+      height: 500,
+    },
+    bottom: {
+      height: height,
+      width: width,
+      backgroundColor: "#FA8989",
+      position: "absolute",
     },
   });

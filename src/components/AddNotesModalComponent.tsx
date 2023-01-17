@@ -10,13 +10,45 @@ import {
 } from "react-native";
 import { note } from "../config/types/note";
 import { theme } from "../config/colors";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
+import moment from "moment";
+import { addNote } from "../helpers/asyncStorage";
 
 const AddNotesModalComponent: React.FC<AddNotesModalInterface> = (props) => {
   const { theme } = useContext(ThemeContext);
 
   const styles = themeStyles(theme);
+  const [inputs, setInputs] = useState({
+    itemType: "note",
+    item: {
+      id: "",
+      title: "",
+      description: "",
+      date: "",
+      time: "",
+    },
+  });
+
+  let finalInputs: note = {
+    id: "",
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+  };
+
+  const addNewNote = async () => {
+    var id = moment().unix();
+    const tempId = `${id}`;
+    const dateTimeNow = moment();
+    const date = moment(dateTimeNow).format("Do MMM YYYY");
+    const time = moment(dateTimeNow).format("LT");
+    finalInputs = { ...inputs.item, date: date, time: time, id: tempId };
+    await addNote(finalInputs);
+    props.setAddNoteModalVisible(!props.addNoteModalVisible);
+    props.setRefreshScreen(!props.refreshScreen);
+  };
 
   return (
     <Modal
@@ -40,32 +72,24 @@ const AddNotesModalComponent: React.FC<AddNotesModalInterface> = (props) => {
               placeholder="Title"
               placeholderTextColor="black"
               style={styles.textInput}
-              value={props.addData?.item.title}
+              value={inputs.item.title}
               onChangeText={(text) => {
-                const tempData: note = {
-                  id: "1254582",
-                  title: text,
-                  date: "09-01-2023",
-                  description: props.addData?.item.description,
-                  time: "11.38 A.M.",
-                };
-                props.setAddData({ item: tempData, itemType: "note" });
+                setInputs({
+                  itemType: "note",
+                  item: { ...inputs.item, title: text },
+                });
               }}
             />
             <TextInput
               placeholder="Description"
               placeholderTextColor="black"
               style={styles.textInput}
-              value={props.addData?.item.description}
+              value={inputs.item.description}
               onChangeText={(text) => {
-                const tempData: note = {
-                  id: "1254582",
-                  title: props.addData?.item.title,
-                  date: "09-01-2023",
-                  description: text,
-                  time: "11.38 A.M.",
-                };
-                props.setAddData({ item: tempData, itemType: "note" });
+                setInputs({
+                  itemType: "note",
+                  item: { ...inputs.item, description: text },
+                });
               }}
             />
           </View>
@@ -73,7 +97,7 @@ const AddNotesModalComponent: React.FC<AddNotesModalInterface> = (props) => {
           <View style={styles.modalButtonContainer}>
             <Pressable
               style={[styles.buttonModal, styles.buttonClose]}
-              onPress={() => console.log("Add data")}
+              onPress={addNewNote}
             >
               <Text style={styles.textStyle}>{"Add"}</Text>
             </Pressable>

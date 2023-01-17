@@ -32,11 +32,22 @@ import { RootStackParamList } from "../navigation/RootStackParams";
 
 type Props = {};
 
-type screenProp = StackNavigationProp<RootStackParamList, Navigation.login>;
-const LoginScreen = (props: Props) => {
+type screenProp = StackNavigationProp<
+  RootStackParamList,
+  Navigation.registerScreen
+>;
+const RegisterScreen = (props: Props) => {
   const navigation = useNavigation<screenProp>();
+  const dispatch = useAppDispatch();
   const { theme } = useContext(ThemeContext);
   const formButtonScale = useSharedValue(1);
+
+  const [inputs, setInputs] = useState({
+    email: "",
+    fullName: "",
+    password: "",
+  });
+
   const styles = themeStyles(theme);
 
   const formButtonAnimatedStyle = useAnimatedStyle(() => {
@@ -45,8 +56,27 @@ const LoginScreen = (props: Props) => {
     };
   });
 
-  const handleGotoRegister = () => {
-    navigation.navigate(Navigation.registerScreen);
+  const handleRegister = async () => {
+    const { email, fullName, password } = inputs;
+    if (!email || !fullName || !password) {
+      Toast.show({
+        type: "error",
+        text1: "Please fill all fields",
+        text2: "Email, Full Name and Password are required!",
+      });
+    } else {
+      const user: user = {
+        email,
+        fullName,
+        password,
+      };
+      await addUser(user);
+      Toast.show({
+        type: "success",
+        text1: "User registration successful",
+        text2: "Please login again",
+      });
+    }
   };
 
   const handleGotoLogin = () => {
@@ -61,15 +91,75 @@ const LoginScreen = (props: Props) => {
         colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
         locations={[0.0087, 0.4479, 0.75]}
       >
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../../assets/splash-new.png")}
-            style={styles.image}
-          />
-        </View>
         <View style={styles.headerContainer}>
           <Text style={styles.headerText}>{"Optimiser"}</Text>
         </View>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../../assets/login.png")}
+            style={styles.image}
+          />
+        </View>
+        <View style={styles.blurViewContainer}>
+          <BlurView intensity={2} style={styles.textInputContainer}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
+              placeholder="Email"
+              placeholderTextColor="#FFFFFF"
+              style={styles.textInput}
+              value={inputs.email}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  email: text,
+                });
+              }}
+            />
+          </BlurView>
+        </View>
+        <View style={styles.blurViewContainer}>
+          <BlurView intensity={2} style={styles.textInputContainer}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel={
+                stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_LABLE
+              }
+              accessibilityHint={stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_HINT}
+              placeholder="Full Name"
+              placeholderTextColor="#FFFFFF"
+              style={styles.textInput}
+              value={inputs.fullName}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  fullName: text,
+                });
+              }}
+            />
+          </BlurView>
+        </View>
+        <View style={styles.blurViewContainer}>
+          <BlurView intensity={2} style={styles.textInputContainer}>
+            <TextInput
+              accessible={true}
+              accessibilityLabel={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE}
+              accessibilityHint={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT}
+              placeholder="Password"
+              placeholderTextColor="#FFFFFF"
+              style={styles.textInput}
+              value={inputs.password}
+              onChangeText={(text) => {
+                setInputs({
+                  ...inputs,
+                  password: text,
+                });
+              }}
+              secureTextEntry
+            />
+          </BlurView>
+        </View>
         <Pressable
           accessible={true}
           accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
@@ -80,38 +170,25 @@ const LoginScreen = (props: Props) => {
               withSpring(1, { damping: 1, overshootClamping: true })
             );
 
-            handleGotoLogin();
+            handleRegister();
           }}
         >
           <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
-            <Text style={styles.buttonText}>{"Login"}</Text>
-          </Animated.View>
-        </Pressable>
-        <Pressable
-          accessible={true}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-          onPress={() => {
-            formButtonScale.value = withSequence(
-              withSpring(1.05, { damping: 1, overshootClamping: true }),
-              withSpring(1, { damping: 1, overshootClamping: true })
-            );
-
-            handleGotoRegister();
-          }}
-        >
-          <Animated.View
-            style={[styles.formButtonRegister, formButtonAnimatedStyle]}
-          >
             <Text style={styles.buttonText}>{"Register"}</Text>
           </Animated.View>
         </Pressable>
+        <View style={styles.textWrapper}>
+          <Text style={styles.textStyle}>{"Do you have an account?"}</Text>
+          <Pressable onPress={handleGotoLogin}>
+            <Text style={styles.registerText}>{"Login"}</Text>
+          </Pressable>
+        </View>
       </LinearGradient>
     </View>
   );
 };
 
-export default LoginScreen;
+export default RegisterScreen;
 
 const { width, height } = Dimensions.get("window");
 
@@ -137,25 +214,23 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
     },
     headerContainer: {
-      top: 10,
+      top: 60,
       alignItems: "center",
       justifyContent: "center",
-      marginBottom: 100,
     },
     headerText: {
       fontSize: 30,
-      color: "#FA8989",
+      color: "white",
       fontWeight: "600",
     },
     imageContainer: {
       justifyContent: "center",
       alignItems: "center",
       top: 50,
-      // marginBottom: 100,
     },
     image: {
-      width: 297,
-      height: 297,
+      width: 133,
+      height: 285,
     },
     textInputContainer: {
       width: 0.9 * width,
@@ -214,16 +289,6 @@ const themeStyles = (theme: theme) =>
     },
     formButton: {
       backgroundColor: "#FA8989",
-      height: 50,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 6,
-      width: 0.9 * width,
-      marginHorizontal: 0.05 * width,
-      marginTop: 20,
-    },
-    formButtonRegister: {
-      backgroundColor: "#7B8FFA",
       height: 50,
       alignItems: "center",
       justifyContent: "center",

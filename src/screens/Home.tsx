@@ -6,6 +6,7 @@ import {
   Pressable,
   Image,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -18,11 +19,17 @@ import Animated, {
   interpolate,
   withTiming,
 } from "react-native-reanimated";
+import AddNotesModalComponent from "../components/AddNotesModalComponent";
+import AddTodosModalComponent from "../components/AddTodosModalComponents";
+import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
+import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
+import { getNotes, getTodos } from "../helpers/asyncStorage";
 import AnimatedList from "../components/animatedList/AnimatedList";
 import AddNote from "../components/modals/AddNote";
 import { useAppSelector } from "../redux/hooks";
 import { selectTasks } from "../redux/slices/taskSlice";
 import { localTask } from "../config/types/localTask";
+import stringUtils from "../utils/stringUtils";
 
 export const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
@@ -40,6 +47,7 @@ export const Home = () => {
   const animationRef = useRef(null);
   const isFocused = useIsFocused();
   const buttonPosition = useSharedValue(0);
+  const { height, width } = Dimensions.get("window");
 
   useEffect(() => {
     if (animationRef?.current && isFocused) {
@@ -85,7 +93,12 @@ export const Home = () => {
   const header = useMemo(() => {
     return (
       <View style={styles.headerContainer}>
-        <View style={styles.headerTextContainer}>
+        <View
+          style={styles.headerTextContainer}
+          accessible={true}
+          accessibilityLabel={stringUtils.HOME_SCREEN_TITLE_ACCESSIBILITY_LABLE}
+          accessibilityHint={stringUtils.HOME_SCREEN_TITLE_ACCESSIBILITY_HINT}
+        >
           <Text style={styles.headerText}>{`Home`}</Text>
         </View>
       </View>
@@ -101,7 +114,6 @@ export const Home = () => {
 
   const handleAddTodo = () => {
     buttonPosition.value = 0;
-    console.log("add todo");
     //@ts-ignore
     animationRef.current.play();
   };
@@ -121,6 +133,14 @@ export const Home = () => {
                 ? (buttonPosition.value = 0)
                 : (buttonPosition.value = 1);
             }}
+            accessible={true}
+            focusable={true}
+            accessibilityLabel={
+              stringUtils.HOME_SCREEN_ADD_NEW_NOTES_OR_TODOS_BUTTON_LABLE
+            }
+            accessibilityHint={
+              stringUtils.HOME_SCREEN_ADD_NEW_NOTES_OR_TODOS_BUTTON_HINT
+            }
           >
             <Lottie
               ref={animationRef}
@@ -132,7 +152,17 @@ export const Home = () => {
         </View>
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable onPress={handleAddNote}>
+            <Pressable
+              onPress={handleAddNote}
+              accessible={true}
+              focusable={true}
+              accessibilityLabel={
+                stringUtils.HOME_SCREEN_ADD_NEW_NOTES_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.HOME_SCREEN_ADD_NEW_NOTES_BUTTON_HINT
+              }
+            >
               <Image
                 source={require("../../assets/note.png")}
                 style={styles.noteImage}
@@ -142,7 +172,17 @@ export const Home = () => {
         </Animated.View>
         <Animated.View style={styles.addNoteButtonContainer}>
           <Animated.View style={todoButtonAnimatedStyle}>
-            <Pressable onPress={handleAddTodo}>
+            <Pressable
+              onPress={handleAddTodo}
+              accessible={true}
+              focusable={true}
+              accessibilityLabel={
+                stringUtils.HOME_SCREEN_ADD_NEW_TODOS_BUTTON_LABLE
+              }
+              accessibilityHint={
+                stringUtils.HOME_SCREEN_ADD_NEW_TODOS_BUTTON_HINT
+              }
+            >
               <Image
                 source={require("../../assets/todo.png")}
                 style={styles.noteImage}
@@ -150,6 +190,7 @@ export const Home = () => {
             </Pressable>
           </Animated.View>
         </Animated.View>
+
         <View style={{ marginTop: 20 }}></View>
         <AnimatedList
           data={tasks}
@@ -237,7 +278,7 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
       height: 50,
       width: 50,
-      zIndex: 20,
+      zIndex: 25,
       right: 30,
       bottom: 30,
     },

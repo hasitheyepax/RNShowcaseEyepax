@@ -5,4 +5,6 @@ export interface AddNotesModalInterface {
   setAddNoteModalVisible: Dispatch<SetStateAction<boolean>>;
   addData: commonListTodo | undefined;
   setAddData: Dispatch<SetStateAction<commonListTodo | undefined>>;
+  refreshScreen: boolean;
+  setRefreshScreen: Dispatch<SetStateAction<boolean>>;
 }

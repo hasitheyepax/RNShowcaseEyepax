@@ -27,6 +27,7 @@ import { timeStampToLocal } from "../../helpers/timeHelpers";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeTask } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import stringUtils from "../../utils/stringUtils";
 import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
 
 type renderItemProps = {
@@ -101,7 +102,7 @@ const AnimatedList: React.FC<Props> = (props) => {
         <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
           <Animated.View style={[styles.rightActionStyle, animatedStyle]}>
             <MaterialIcons name="delete-forever" size={36} color="#FFF" />
-            <Text style={styles.buttonText}>{`Delete`}</Text>
+            <Text accessible={false} style={styles.buttonText}>{`Delete`}</Text>
           </Animated.View>
         </TouchableWithoutFeedback>
       );
