@@ -25,10 +25,19 @@ import stringUtils from "../utils/stringUtils";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import { Navigation } from "../config";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/RootStackParams";
 
 type Props = {};
 
+type screenProp = StackNavigationProp<
+  RootStackParamList,
+  Navigation.registerScreen
+>;
 const RegisterScreen = (props: Props) => {
+  const navigation = useNavigation<screenProp>();
   const dispatch = useAppDispatch();
   const { theme } = useContext(ThemeContext);
   const formButtonScale = useSharedValue(1);
@@ -70,7 +79,9 @@ const RegisterScreen = (props: Props) => {
     }
   };
 
-  const handleGotoLogin = () => {};
+  const handleGotoLogin = () => {
+    navigation.navigate(Navigation.loginScreen);
+  };
 
   return (
     <View style={styles.container}>
@@ -168,9 +179,9 @@ const RegisterScreen = (props: Props) => {
         </Pressable>
         <View style={styles.textWrapper}>
           <Text style={styles.textStyle}>{"Do you have an account?"}</Text>
-          <TouchableWithoutFeedback onPress={handleGotoLogin}>
+          <Pressable onPress={handleGotoLogin}>
             <Text style={styles.registerText}>{"Login"}</Text>
-          </TouchableWithoutFeedback>
+          </Pressable>
         </View>
       </LinearGradient>
     </View>
@@ -218,8 +229,8 @@ const themeStyles = (theme: theme) =>
       top: 50,
     },
     image: {
-      width: 193,
-      height: 345,
+      width: 133,
+      height: 285,
     },
     textInputContainer: {
       width: 0.9 * width,

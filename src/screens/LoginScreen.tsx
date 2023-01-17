@@ -24,11 +24,20 @@ import { login } from "../redux/slices/authSlice";
 import stringUtils from "../utils/stringUtils";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import { Navigation } from "../config";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/RootStackParams";
 
 type Props = {};
 
+type screenProp = StackNavigationProp<
+  RootStackParamList,
+  Navigation.loginScreen
+>;
 const LoginScreen = (props: Props) => {
+  const navigation = useNavigation<screenProp>();
+
   const dispatch = useAppDispatch();
   const { theme } = useContext(ThemeContext);
   const formButtonScale = useSharedValue(1);
@@ -46,29 +55,6 @@ const LoginScreen = (props: Props) => {
       transform: [{ scale: formButtonScale.value }],
     };
   });
-
-  const handleRegister = async () => {
-    const { email, fullName, password } = inputs;
-    if (!email || !fullName || !password) {
-      Toast.show({
-        type: "error",
-        text1: "Please fill all fields",
-        text2: "Email, Full Name and Password are required!",
-      });
-    } else {
-      const user: user = {
-        email,
-        fullName,
-        password,
-      };
-      await addUser(user);
-      Toast.show({
-        type: "success",
-        text1: "User registration successful",
-        text2: "Please login again",
-      });
-    }
-  };
 
   const handleLogin = async () => {
     const { email, password } = inputs;
@@ -105,7 +91,9 @@ const LoginScreen = (props: Props) => {
     }
   };
 
-  const handleGotoRegister = () => {};
+  const handleGotoRegister = () => {
+    navigation.navigate(Navigation.registerScreen);
+  };
 
   return (
     <View style={styles.container}>
@@ -182,9 +170,9 @@ const LoginScreen = (props: Props) => {
         </Pressable>
         <View style={styles.textWrapper}>
           <Text style={styles.textStyle}>{"Do not have an account?"}</Text>
-          <TouchableWithoutFeedback onPress={handleGotoRegister}>
+          <Pressable onPress={handleGotoRegister}>
             <Text style={styles.registerText}>{"Register"}</Text>
-          </TouchableWithoutFeedback>
+          </Pressable>
         </View>
       </LinearGradient>
     </View>
@@ -230,6 +218,7 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       alignItems: "center",
       top: 50,
+      marginBottom: 50,
     },
     image: {
       width: 193,
@@ -298,6 +287,6 @@ const themeStyles = (theme: theme) =>
       borderRadius: 6,
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
-      marginTop: 20,
+      marginTop: 40,
     },
   });

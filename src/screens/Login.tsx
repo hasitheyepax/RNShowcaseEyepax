@@ -6,18 +6,11 @@ import {
   Dimensions,
   TextInput,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Keyboard,
+  Image,
 } from "react-native";
-import Svg, { Image, Ellipse, ClipPath } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  interpolate,
-  withTiming,
-  withDelay,
-  runOnJS,
   withSequence,
   withSpring,
 } from "react-native-reanimated";
@@ -29,77 +22,22 @@ import Toast from "react-native-toast-message";
 import { useAppDispatch } from "../redux/hooks";
 import { login } from "../redux/slices/authSlice";
 import stringUtils from "../utils/stringUtils";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+import { Navigation } from "../config";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/RootStackParams";
 
 type Props = {};
 
-const Login = (props: Props) => {
-  const dispatch = useAppDispatch();
+type screenProp = StackNavigationProp<RootStackParamList, Navigation.login>;
+const LoginScreen = (props: Props) => {
+  const navigation = useNavigation<screenProp>();
   const { theme } = useContext(ThemeContext);
-  const { height, width } = Dimensions.get("window");
-  const imagePosition = useSharedValue(1);
   const formButtonScale = useSharedValue(1);
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [closeButtonAccessible, setCloseButtonAccessible] = useState(false);
-
-  const [inputs, setInputs] = useState({
-    email: "",
-    fullName: "",
-    password: "",
-  });
-
   const styles = themeStyles(theme);
-
-  const imageAnimatedStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(
-      imagePosition.value,
-      [0, 1],
-      [-height / 2 - 50, 0]
-    );
-    return {
-      transform: [
-        { translateY: withTiming(interpolation, { duration: 1000 }) },
-      ],
-    };
-  });
-
-  const buttonsAnimatedStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(imagePosition.value, [0, 1], [250, 0]);
-    return {
-      opacity: withTiming(imagePosition.value, { duration: 500 }),
-      transform: [
-        { translateY: withTiming(interpolation, { duration: 1000 }) },
-      ],
-    };
-  });
-
-  const logoAnimatedStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(imagePosition.value, [0, 1], [-width, 0]);
-    return {
-      opacity: withTiming(imagePosition.value, { duration: 500 }),
-      transform: [
-        { translateY: withTiming(interpolation, { duration: 1000 }) },
-      ],
-    };
-  });
-
-  const closeButtonContainerStyle = useAnimatedStyle(() => {
-    const interpolation = interpolate(imagePosition.value, [0, 1], [180, 360]);
-    return {
-      opacity: withTiming(imagePosition.value === 1 ? 0 : 1, { duration: 800 }),
-      transform: [
-        { rotate: withTiming(interpolation + "deg", { duration: 1000 }) },
-      ],
-    };
-  });
-
-  const formAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity:
-        imagePosition.value === 0
-          ? withDelay(400, withTiming(1, { duration: 800 }))
-          : withTiming(0, { duration: 300 }),
-    };
-  });
 
   const formButtonAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -107,262 +45,73 @@ const Login = (props: Props) => {
     };
   });
 
-  const loginHandler = () => {
-    setCloseButtonAccessible(false);
-    imagePosition.value = 0;
-    if (isRegistering) {
-      runOnJS(setIsRegistering)(false);
-    }
+  const handleGotoRegister = () => {
+    navigation.navigate(Navigation.registerScreen);
   };
 
-  const registerHandler = () => {
-    setCloseButtonAccessible(false);
-    imagePosition.value = 0;
-    if (!isRegistering) {
-      runOnJS(setIsRegistering)(true);
-    }
-  };
-
-  const handleRegister = async () => {
-    const { email, fullName, password } = inputs;
-    if (!email || !fullName || !password) {
-      Toast.show({
-        type: "error",
-        text1: "Please fill all fields",
-        text2: "Email, Full Name and Password are required!",
-      });
-    } else {
-      const user: user = {
-        email,
-        fullName,
-        password,
-      };
-      await addUser(user);
-      Toast.show({
-        type: "success",
-        text1: "User registration successful",
-        text2: "Please login again",
-      });
-    }
-  };
-  const handleLogin = async () => {
-    const { email, password } = inputs;
-    const users = await getUsers();
-    if (!email || !password) {
-      if (!users) {
-        Toast.show({
-          type: "error",
-          text1: "Please fill both fields",
-          text2: "Email and Password are required!",
-        });
-      }
-    } else {
-      if (!users) {
-        Toast.show({
-          type: "error",
-          text1: "No users found",
-          text2: "Please register a user first!",
-        });
-      } else {
-        const user = users.find((e) => {
-          return e.email === email;
-        });
-        if (user?.password === password) {
-          dispatch(login());
-        } else {
-          Toast.show({
-            type: "error",
-            text1: "Invalid credentials",
-            text2: "Please check your email and password",
-          });
-        }
-      }
-    }
+  const handleGotoLogin = () => {
+    navigation.navigate(Navigation.loginScreen);
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <Animated.View style={styles.container}>
-        <Animated.View style={[StyleSheet.absoluteFill, imageAnimatedStyle]}>
-          <Svg height={height + 100} width={width}>
-            <ClipPath id="clipPathId">
-              <Ellipse cx={width / 2} rx={height} ry={height + 100} />
-            </ClipPath>
-            <Image
-              href={require("../../assets/login-background.jpg")}
-              width={width + 100}
-              height={height + 100}
-              preserveAspectRatio="xMidYMid slice"
-              clipPath="url(#clipPathId)"
-            />
-          </Svg>
-        </Animated.View>
+    <View style={styles.container}>
+      <View style={styles.backgroundContainer}></View>
+      <LinearGradient
+        style={styles.gradientContainer}
+        colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
+        locations={[0.0087, 0.4479, 0.75]}
+      >
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../../assets/splash-new.png")}
+            style={styles.image}
+          />
+        </View>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>{"Optimiser"}</Text>
+        </View>
         <Pressable
-          accessibilityElementsHidden={closeButtonAccessible}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_CLOSE_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_CLOSE_BUTTON_HINT}
-          style={{ zIndex: 100 }}
+          accessible={true}
+          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
+          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
           onPress={() => {
-            setCloseButtonAccessible(true);
-            imagePosition.value = 1;
-            Keyboard.dismiss();
-            setInputs({
-              email: "",
-              fullName: "",
-              password: "",
-            });
+            formButtonScale.value = withSequence(
+              withSpring(1.05, { damping: 1, overshootClamping: true }),
+              withSpring(1, { damping: 1, overshootClamping: true })
+            );
+
+            handleGotoLogin();
+          }}
+        >
+          <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
+            <Text style={styles.buttonText}>{"Login"}</Text>
+          </Animated.View>
+        </Pressable>
+        <Pressable
+          accessible={true}
+          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
+          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
+          onPress={() => {
+            formButtonScale.value = withSequence(
+              withSpring(1.05, { damping: 1, overshootClamping: true }),
+              withSpring(1, { damping: 1, overshootClamping: true })
+            );
+
+            handleGotoRegister();
           }}
         >
           <Animated.View
-            style={[styles.closeButtonContainer, closeButtonContainerStyle]}
+            style={[styles.formButtonRegister, formButtonAnimatedStyle]}
           >
-            <Text>X</Text>
+            <Text style={styles.buttonText}>{"Register"}</Text>
           </Animated.View>
         </Pressable>
-        <View style={styles.logoContainer}>
-          <Animated.View style={logoAnimatedStyle}>
-            <Svg height={150} width={150}>
-              <ClipPath id="clipPathId">
-                <Ellipse cx={width / 2} rx={height} ry={height + 100} />
-              </ClipPath>
-              <Image
-                href={require("../../assets/app-icon.png")}
-                width={130}
-                height={130}
-                preserveAspectRatio="xMidYMid slice"
-                clipPath="url(#clipPathId)"
-              />
-            </Svg>
-          </Animated.View>
-        </View>
-
-        <View style={styles.bottomContainer}>
-          <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable
-              style={styles.button}
-              onPress={loginHandler}
-              accessible={true}
-              accessibilityLabel={
-                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_LOGIN_BUTTON_LABLE
-              }
-              accessibilityHint={
-                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_LOGIN_BUTTON_HINT
-              }
-            >
-              <Text style={styles.buttonText}>LOG IN</Text>
-            </Pressable>
-          </Animated.View>
-          <Animated.View style={buttonsAnimatedStyle}>
-            <Pressable
-              style={styles.button}
-              onPress={registerHandler}
-              accessible={true}
-              accessibilityLabel={
-                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_REGISTER_BUTTON_LABLE
-              }
-              accessibilityHint={
-                stringUtils.LOGIN_SCREEN_SELECTING_LOGIN_OR_REGISTER_REGISTER_BUTTON_HINT
-              }
-            >
-              <Text style={styles.buttonText}>REGISTER</Text>
-            </Pressable>
-          </Animated.View>
-          <Animated.View style={[styles.formInputContainer, formAnimatedStyle]}>
-            <TextInput
-              accessible={true}
-              accessibilityLabel={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE}
-              accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
-              placeholder="Email"
-              placeholderTextColor="black"
-              style={styles.textInput}
-              value={inputs.email}
-              onChangeText={(text) => {
-                setInputs({
-                  ...inputs,
-                  email: text,
-                });
-              }}
-            />
-            {isRegistering && (
-              <TextInput
-                accessible={true}
-                accessibilityLabel={
-                  stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_LABLE
-                }
-                accessibilityHint={
-                  stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_HINT
-                }
-                placeholder="Full Name"
-                placeholderTextColor="black"
-                style={styles.textInput}
-                value={inputs.fullName}
-                onChangeText={(text) => {
-                  setInputs({
-                    ...inputs,
-                    fullName: text,
-                  });
-                }}
-              />
-            )}
-            <TextInput
-              accessible={true}
-              accessibilityLabel={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE}
-              accessibilityHint={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT}
-              placeholder="Password"
-              placeholderTextColor="black"
-              style={styles.textInput}
-              value={inputs.password}
-              onChangeText={(text) => {
-                setInputs({
-                  ...inputs,
-                  password: text,
-                });
-              }}
-              secureTextEntry
-            />
-            <Pressable
-              accessible={true}
-              accessibilityLabel={
-                !isRegistering
-                  ? stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
-                  : stringUtils.LOGIN_SCREEN_REGISTER_BUTTON_LABLE
-              }
-              accessibilityHint={
-                !isRegistering
-                  ? stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT
-                  : stringUtils.LOGIN_SCREEN_REGISTER_BUTTON_HINT
-              }
-              onPress={() => {
-                formButtonScale.value = withSequence(
-                  withSpring(1.05, { damping: 1, overshootClamping: true }),
-                  withSpring(1, { damping: 1, overshootClamping: true })
-                );
-                if (isRegistering) {
-                  handleRegister();
-                } else {
-                  handleLogin();
-                }
-              }}
-            >
-              <Animated.View
-                style={[styles.formButton, formButtonAnimatedStyle]}
-              >
-                <Text style={styles.buttonText}>
-                  {isRegistering ? "REGISTER" : "LOG IN"}
-                </Text>
-              </Animated.View>
-            </Pressable>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    </KeyboardAvoidingView>
+      </LinearGradient>
+    </View>
   );
 };
 
-export default Login;
+export default LoginScreen;
 
 const { width, height } = Dimensions.get("window");
 
@@ -371,6 +120,71 @@ const themeStyles = (theme: theme) =>
     container: {
       flex: 1,
       justifyContent: "flex-end",
+    },
+    gradientContainer: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      flex: 1,
+      //   height: 500,
+      zIndex: 2,
+    },
+    backgroundContainer: {
+      height: height,
+      width: width,
+      backgroundColor: "#002B5C",
+      position: "absolute",
+    },
+    headerContainer: {
+      top: 10,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 100,
+    },
+    headerText: {
+      fontSize: 30,
+      color: "#FA8989",
+      fontWeight: "600",
+    },
+    imageContainer: {
+      justifyContent: "center",
+      alignItems: "center",
+      top: 50,
+      // marginBottom: 100,
+    },
+    image: {
+      width: 297,
+      height: 297,
+    },
+    textInputContainer: {
+      width: 0.9 * width,
+      height: 50,
+      justifyContent: "center",
+      padding: 10,
+      borderRadius: 6,
+      //   backgroundColor: "#FFFFFF",
+      //   opacity: 0.1,
+      top: 20,
+    },
+    blurViewContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+    },
+
+    textWrapper: {
+      justifyContent: "center",
+      alignItems: "center",
+      marginTop: 10,
+    },
+    textStyle: {
+      color: "#FFFFFF",
+    },
+    registerText: {
+      color: "#7B8FFA",
+      textDecorationLine: "underline",
+      fontSize: 16,
     },
     button: {
       backgroundColor: theme.colors.secondary,
@@ -394,67 +208,28 @@ const themeStyles = (theme: theme) =>
       height: height / 3,
     },
     textInput: {
-      height: 40,
-      borderWidth: 1,
-      borderColor: theme.colors.primary,
-      marginHorizontal: 20,
-      marginVertical: 10,
-      borderRadius: 25,
-      paddingLeft: 10,
+      color: "#FFFFFF",
+      fontSize: 16,
+      fontWeight: "400",
     },
     formButton: {
-      backgroundColor: theme.colors.secondary,
-      height: 35,
+      backgroundColor: "#FA8989",
+      height: 50,
       alignItems: "center",
       justifyContent: "center",
-      borderRadius: 35,
-      marginHorizontal: 60,
-      marginVertical: 10,
-      borderWidth: 1,
-      borderColor: theme.colors.rawText,
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 4,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
+      borderRadius: 6,
+      width: 0.9 * width,
+      marginHorizontal: 0.05 * width,
+      marginTop: 20,
     },
-    formInputContainer: {
-      marginBottom: 20,
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      zIndex: -1,
-      justifyContent: "center",
-    },
-    closeButtonContainer: {
-      height: 40,
-      width: 40,
-      justifyContent: "center",
-      alignSelf: "center",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 5,
-      },
-      shadowOpacity: 0.34,
-      shadowRadius: 6.27,
-      elevation: 1,
-      backgroundColor: theme.colors.rawText,
+    formButtonRegister: {
+      backgroundColor: "#7B8FFA",
+      height: 50,
       alignItems: "center",
-      borderRadius: 20,
-      top: -20,
-    },
-    logoContainer: {
-      height: 180,
-      width: width,
-      position: "absolute",
-      top: 140,
       justifyContent: "center",
-      alignItems: "center",
+      borderRadius: 6,
+      width: 0.9 * width,
+      marginHorizontal: 0.05 * width,
+      marginTop: 20,
     },
   });
