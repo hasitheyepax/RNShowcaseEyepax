@@ -5,8 +5,9 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import ThemeContext from "../../contexts/themeContext";
 import { theme } from "../../config/colors";
 import Animated, {
@@ -14,14 +15,19 @@ import Animated, {
   FadeInUp,
   FadeOut,
   Layout,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { Swipeable } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { localTask } from "../../config/types/localTask";
 import { timeStampToLocal } from "../../helpers/timeHelpers";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { removeTask } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
 
 type renderItemProps = {
   item: localTask;
@@ -32,12 +38,14 @@ type renderItemProps = {
 interface Props {
   data: localTask[];
   contentContainerStyle?: ViewStyle;
+  setActiveItem?: Function;
 }
 
 const AnimatedList: React.FC<Props> = (props) => {
-  const { data, contentContainerStyle } = props;
+  const { data, contentContainerStyle, setActiveItem } = props;
   const { theme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
+  const swipeToDeleteEnabled = useAppSelector(selectSwipeToDeleteEnabled);
 
   const styles = themeStyles(theme);
 
@@ -45,16 +53,53 @@ const AnimatedList: React.FC<Props> = (props) => {
     dispatch(removeTask(task));
   };
 
+  const initialMode = useRef<boolean>(true);
+
+  useEffect(() => {
+    initialMode.current = false;
+  }, []);
+
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
+    const [active, setActive] = useState(false);
+
+    const height = useSharedValue(120);
+    const opacity = useSharedValue(0);
+    const scale = useSharedValue(0);
+
+    const animatedStyle = useAnimatedStyle(() => {
+      if (active) {
+        height.value = withTiming(200);
+      } else {
+        height.value = withTiming(120);
+      }
+      return {
+        height: height.value,
+      };
+    }, [active]);
+
+    const animatedEditContainerStyle = useAnimatedStyle(() => {
+      if (active) {
+        opacity.value = withTiming(1);
+        scale.value = withSpring(1);
+      } else {
+        opacity.value = withTiming(0);
+        scale.value = withSpring(0);
+      }
+      return {
+        opacity: opacity.value,
+        transform: [
+          {
+            scale: scale.value,
+          },
+        ],
+      };
+    }, [active]);
 
     const RightAction = () => {
       return (
         <TouchableWithoutFeedback onPress={() => handleDelete(item)}>
-          <Animated.View
-            entering={FadeInUp.damping(1000)}
-            style={styles.rightActionStyle}
-          >
+          <Animated.View style={[styles.rightActionStyle, animatedStyle]}>
             <MaterialIcons name="delete-forever" size={36} color="#FFF" />
             <Text style={styles.buttonText}>{`Delete`}</Text>
           </Animated.View>
@@ -62,41 +107,62 @@ const AnimatedList: React.FC<Props> = (props) => {
       );
     };
 
+    const handleTouch = () => {
+      setActive(!active);
+    };
+
+    const handleEditTouch = () => {
+      setActiveItem?.(item);
+    };
+
     return (
-      <Swipeable renderRightActions={RightAction}>
-        <Animated.View
-          style={styles.listItem}
-          entering={FadeIn.delay(100 * index)}
-          layout={Layout.delay(200)}
-          exiting={FadeOut}
+      <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
+        <Swipeable
+          renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
         >
-          <Text style={styles.titleText}>{item.title}</Text>
-          {item.description && (
-            <Text style={styles.descriptionText}>{item.description}</Text>
-          )}
-          <View style={styles.timestamp}>
-            <Text style={styles.regularText}>
-              {`${timeStampToLocal(item.createdTimestamp)}`}
-            </Text>
-          </View>
-          <View style={styles.icon}>
-            <SimpleLineIcons
-              name="note"
-              size={20}
-              color={theme.colors.background}
-            />
-          </View>
-        </Animated.View>
-      </Swipeable>
+          <Animated.View
+            style={[styles.listItem, animatedStyle]}
+            entering={initialMode.current ? FadeIn.delay(100 * index) : FadeIn}
+            exiting={FadeOut}
+            onTouchEnd={undefined}
+          >
+            <Text style={styles.titleText}>{item.title}</Text>
+            {item.description && (
+              <Text style={styles.descriptionText}>{item.description}</Text>
+            )}
+            <View style={styles.timestamp}>
+              <Text style={styles.regularText}>
+                {`${timeStampToLocal(item.createdTimestamp)}`}
+              </Text>
+            </View>
+            <View style={styles.icon}>
+              <SimpleLineIcons
+                name="note"
+                size={20}
+                color={theme.colors.background}
+              />
+            </View>
+            <Animated.View
+              style={[styles.editContainer, animatedEditContainerStyle]}
+              onTouchEnd={handleEditTouch}
+            >
+              <Text style={styles.editText}>{`Edit`}</Text>
+            </Animated.View>
+          </Animated.View>
+        </Swipeable>
+      </TouchableOpacity>
     );
   };
 
   return (
-    <View style={[styles.container, contentContainerStyle]}>
-      <ScrollView style={styles.scrollView}>
-        {data.map((e, index) => {
-          return <RenderItem item={e} index={index} key={index.toString()} />;
-        })}
+    <View style={[styles.container]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={contentContainerStyle}
+      >
+        {data.map((item, index) => (
+          <RenderItem key={item.id} index={index} item={item} />
+        ))}
       </ScrollView>
     </View>
   );
@@ -165,6 +231,18 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
       top: 10,
       right: 10,
+    },
+    editContainer: {
+      flexDirection: "row",
+      backgroundColor: theme.colors.secondary,
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      borderBottomLeftRadius: 20,
+      padding: 10,
+    },
+    editText: {
+      color: theme.colors.text,
     },
   });
 
