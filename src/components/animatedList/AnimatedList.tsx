@@ -5,6 +5,7 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import ThemeContext from "../../contexts/themeContext";
@@ -115,14 +116,15 @@ const AnimatedList: React.FC<Props> = (props) => {
     };
 
     return (
-      <Swipeable
-        renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
-      >
-        <TouchableWithoutFeedback onPress={handleTouch}>
+      <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
+        <Swipeable
+          renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
+        >
           <Animated.View
             style={[styles.listItem, animatedStyle]}
             entering={initialMode.current ? FadeIn.delay(100 * index) : FadeIn}
             exiting={FadeOut}
+            onTouchEnd={undefined}
           >
             <Text style={styles.titleText}>{item.title}</Text>
             {item.description && (
@@ -147,8 +149,8 @@ const AnimatedList: React.FC<Props> = (props) => {
               <Text style={styles.editText}>{`Edit`}</Text>
             </Animated.View>
           </Animated.View>
-        </TouchableWithoutFeedback>
-      </Swipeable>
+        </Swipeable>
+      </TouchableOpacity>
     );
   };
 
