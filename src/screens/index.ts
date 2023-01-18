@@ -5,6 +5,7 @@ import Search from "./Search";
 import Settings from "./Settings";
 import LoginScreen from "./LoginScreen";
 import RegisterScreen from "./RegisterScreen";
+import QrScannerScreen from "./QrScannerScreen";
 
 const Screens = {
   Home,
@@ -14,6 +15,7 @@ const Screens = {
   Settings,
   LoginScreen,
   RegisterScreen,
+  QrScannerScreen,
 };
 
 export default Screens;
