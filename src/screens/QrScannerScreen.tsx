@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Text, View, StyleSheet, Button, Dimensions } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Button,
+  Dimensions,
+  Pressable,
+} from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -52,10 +59,13 @@ const QrScannerScreen = () => {
           style={styles.qrScanner}
         />
         {scanned && (
-          <Button
-            title={"Tap to Scan Again"}
-            onPress={() => setScanned(false)}
-          />
+          <View style={styles.buttonContainer}>
+            <View style={styles.button}>
+              <Pressable onPress={() => setScanned(false)}>
+                <Text style={{ color: "#FFFFFF" }}>{"Tap to Scan Again"}</Text>
+              </Pressable>
+            </View>
+          </View>
         )}
       </LinearGradient>
     </View>
@@ -89,5 +99,17 @@ const themeStyles = (theme: theme) =>
       top: 0,
       flex: 1,
       height: 500,
+    },
+    button: {
+      height: 60,
+      width: 150,
+      bottom: -130,
+      backgroundColor: "#002B5C",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonContainer: {
+      width: "100%",
+      alignItems: "center",
     },
   });
