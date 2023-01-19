@@ -31,7 +31,7 @@ import { selectTasks } from "../redux/slices/taskSlice";
 import { localTask } from "../config/types/localTask";
 import stringUtils from "../utils/stringUtils";
 
-export const Home = () => {
+const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
   const [activeItem, setActiveItem] = useState<localTask | null>(null);
 
@@ -218,6 +218,7 @@ export const Home = () => {
   );
 };
 
+export default Home;
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {

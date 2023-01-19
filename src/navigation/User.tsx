@@ -9,8 +9,9 @@ import searchIcon from "../components/assets/icons/search.icon.json";
 import settingsIcon from "../components/assets/icons/settings.icon.json";
 import { theme } from "../config/colors";
 import ThemeContext from "../contexts/themeContext";
-import { Home } from "../screens/Home";
+import Home from "../screens/Home";
 import Profile from "../screens/Profile";
+import QrScannerScreen from "../screens/QrScannerScreen";
 import Search from "../screens/Search";
 import Settings from "../screens/Settings";
 
@@ -55,7 +56,7 @@ const User = () => {
           headerShown: false,
         }}
         name="Search"
-        component={Search}
+        component={QrScannerScreen}
       />
       <BottomTabs.Screen
         options={{

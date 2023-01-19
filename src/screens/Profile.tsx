@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useAppDispatch } from "../redux/hooks";
 import { logout } from "../redux/slices/authSlice";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
 type Props = {};
 
@@ -58,6 +59,8 @@ const Profile = (props: Props) => {
     }
   };
 
+  const handleGotoSettings = () => {};
+
   const styles = themeStyles(theme);
 
   const ProfileContent = () => {
@@ -88,14 +91,44 @@ const Profile = (props: Props) => {
             <Text style={styles.nameText}>Isuru Ranapana</Text>
             <Text style={styles.emailText}>isuru.r@eyepax.com</Text>
           </View>
-
-          <View style={styles.btnContainer}>
-            <Pressable
-              onPress={handleLogout}
-              style={{ width: 150, alignItems: "center" }}
-            >
-              <Text style={styles.logoutText}>Logout</Text>
-            </Pressable>
+          <View style={{ marginTop: 50 }}>
+            <BlurView style={styles.blurView}>
+              <View>
+                <Pressable
+                  onPress={handleGotoSettings}
+                  style={styles.profileSettingsButton}
+                >
+                  <Image
+                    source={require("../../assets/settings-icon.png")}
+                    style={[styles.icon, { left: 10 }]}
+                  />
+                  <View style={styles.buttonTextContainer}>
+                    <Text style={styles.logoutText}>{"Profile settings"}</Text>
+                  </View>
+                  <Image
+                    source={require("../../assets/right-arrow-icon.png")}
+                    style={styles.icon}
+                  />
+                </Pressable>
+              </View>
+            </BlurView>
+            <BlurView style={styles.blurView2}>
+              <View>
+                <Pressable
+                  onPress={handleLogout}
+                  style={styles.profileSettingsButton}
+                >
+                  <Image
+                    source={require("../../assets/logout.png")}
+                    style={[styles.icon, { left: 10 }]}
+                  />
+                  <View style={styles.buttonTextContainer}>
+                    <Text style={styles.logoutText}>{"Logout"}</Text>
+                  </View>
+                  <View style={styles.icon}></View>
+                </Pressable>
+              </View>
+            </BlurView>
           </View>
         </View>
       </>
@@ -138,7 +171,7 @@ const themeStyles = (theme: theme) =>
     headerContainer: {
       marginTop: 20,
       justifyContent: "center",
-      alignItems: "center",
+      // alignItems: "center",
       // flex: 1,
       // backgroundColor: "red",
       height: 70,
@@ -147,10 +180,11 @@ const themeStyles = (theme: theme) =>
     headerTextContainer: {
       // flex: 1,
       // backgroundColor: "blue",
+      left: 16,
     },
     headerText: {
-      fontSize: 20,
-      fontWeight: "300",
+      fontSize: 24,
+      fontWeight: "600",
       color: theme.colors.rawText,
     },
 
@@ -181,6 +215,10 @@ const themeStyles = (theme: theme) =>
       height: 46,
       borderRadius: 25,
     },
+    icon: {
+      width: 24,
+      height: 24,
+    },
     detailsContainer: {
       marginTop: 25,
       alignItems: "center",
@@ -188,9 +226,11 @@ const themeStyles = (theme: theme) =>
     },
     nameText: {
       fontSize: 26,
+      color: "#FFFFFF",
     },
     emailText: {
       fontSize: 16,
+      color: "#FFFFFF",
     },
     btnContainer: {
       alignItems: "center",
@@ -258,5 +298,29 @@ const themeStyles = (theme: theme) =>
       width: width,
       backgroundColor: "#FA8989",
       position: "absolute",
+    },
+    blurView: {
+      height: 45,
+      width: 0.9 * width,
+      justifyContent: "center",
+      alignItems: "flex-start",
+      borderBottomWidth: 1,
+      borderColor: "#FFFFFF",
+    },
+    blurView2: {
+      height: 45,
+      width: 0.9 * width,
+      justifyContent: "center",
+      alignItems: "flex-start",
+    },
+    profileSettingsButton: {
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+    },
+    buttonTextContainer: {
+      width: 0.75 * width,
+      left: 10,
     },
   });
