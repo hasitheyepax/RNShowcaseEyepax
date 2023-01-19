@@ -18,6 +18,15 @@ const QrScannerScreen = () => {
   const [scanned, setScanned] = useState(false);
   const { theme } = useContext(ThemeContext);
   const styles = themeStyles(theme);
+  const Header: React.FC = () => {
+    return (
+      <View style={styles.headerContainer}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{`QR Scanner`}</Text>
+        </View>
+      </View>
+    );
+  };
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -54,9 +63,11 @@ const QrScannerScreen = () => {
         ]}
         locations={[0, 0.3385, 1]}
       >
+        <Header />
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={styles.qrScanner}
+          // barCodeTypes={}
         />
         {scanned && (
           <View style={styles.buttonContainer}>
@@ -84,7 +95,7 @@ const themeStyles = (theme: theme) =>
     qrScanner: {
       height: 350,
       width: width,
-      top: 0.2 * height,
+      top: 0.1 * height,
     },
     bottom: {
       height: height,
@@ -111,5 +122,24 @@ const themeStyles = (theme: theme) =>
     buttonContainer: {
       width: "100%",
       alignItems: "center",
+    },
+    headerContainer: {
+      marginTop: 20,
+      justifyContent: "center",
+      // alignItems: "center",
+      // flex: 1,
+      // backgroundColor: "red",
+      height: 70,
+      zIndex: 10,
+    },
+    headerTextContainer: {
+      // flex: 1,
+      // backgroundColor: "blue",
+      left: 16,
+    },
+    headerText: {
+      fontSize: 24,
+      fontWeight: "600",
+      color: theme.colors.rawText,
     },
   });
