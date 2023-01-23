@@ -31,6 +31,9 @@ import { selectTasks } from "../redux/slices/taskSlice";
 import { localTask } from "../config/types/localTask";
 import stringUtils from "../utils/stringUtils";
 import QrViewModal from "../components/modals/QrViewModal";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { height, width } = Dimensions.get("window");
 
 const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
@@ -211,25 +214,32 @@ const Home = () => {
 
   return (
     <SafeAreaView style={styles.wrapper}>
-      <AddNote
-        visible={addNoteVisible}
-        onCancel={() => {
-          setAddNoteVisible(false);
-          if (activeItem) setActiveItem(null);
-        }}
-        onSubmit={handleSubmitNote}
-        item={activeItem}
-      />
-      <QrViewModal
-        visible={qrVisible}
-        onCancel={() => {
-          setQrVisible(false);
-          if (activeShareItem) setActiveShareItem(null);
-        }}
-        item={activeShareItem}
-      />
-      {header}
-      {homeContent}
+      <View style={styles.bottom}></View>
+      <LinearGradient
+        style={styles.gradientContainer}
+        colors={["rgba(123, 143, 250, 0.51)", "rgba(250, 137, 137, 0)"]}
+        locations={[0.1646, 0.9292]}
+      >
+        <AddNote
+          visible={addNoteVisible}
+          onCancel={() => {
+            setAddNoteVisible(false);
+            if (activeItem) setActiveItem(null);
+          }}
+          onSubmit={handleSubmitNote}
+          item={activeItem}
+        />
+        <QrViewModal
+          visible={qrVisible}
+          onCancel={() => {
+            setQrVisible(false);
+            if (activeShareItem) setActiveShareItem(null);
+          }}
+          item={activeShareItem}
+        />
+        {header}
+        {homeContent}
+      </LinearGradient>
     </SafeAreaView>
   );
 };
@@ -238,27 +248,30 @@ export default Home;
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
-      backgroundColor: theme.colors.background,
+      // backgroundColor: theme.colors.background,
       flex: 1,
     },
     wrapper: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      // backgroundColor: theme.colors.background,
     },
     headerContainer: {
       marginTop: 20,
-      justifyContent: "center",
-      alignItems: "center",
+      justifyContent: "flex-end",
+      // alignItems: "center",
       // flex: 1,
-      // height: 70,
+      // backgroundColor: "red",
+      height: 50,
+      zIndex: 10,
     },
     headerTextContainer: {
       // flex: 1,
       // backgroundColor: "blue",
+      left: 16,
     },
     headerText: {
-      fontSize: 20,
-      fontWeight: "300",
+      fontSize: 24,
+      fontWeight: "600",
       color: theme.colors.rawText,
     },
 
@@ -293,11 +306,14 @@ const themeStyles = (theme: theme) =>
     },
     addButtonContainer: {
       position: "absolute",
-      height: 50,
-      width: 50,
+      height: 70,
+      width: 70,
       zIndex: 25,
-      right: 30,
-      bottom: 30,
+      // right: 30,
+      bottom: 0,
+      right: 0,
+      // marginRight: 20,
+      // backgroundColor: "red",
     },
     addNoteButtonContainer: {
       position: "absolute",
@@ -314,5 +330,19 @@ const themeStyles = (theme: theme) =>
     noteImage: {
       height: 60,
       width: 60,
+    },
+    gradientContainer: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      flex: 1,
+      height: 500,
+    },
+    bottom: {
+      height: height,
+      width: width,
+      backgroundColor: "#002B5C",
+      position: "absolute",
     },
   });
