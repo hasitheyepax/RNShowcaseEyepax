@@ -12,12 +12,19 @@ import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
 const { height, width } = Dimensions.get("window");
 import { LinearGradient } from "expo-linear-gradient";
+import { localTask } from "../config/types/localTask";
+import { useAppDispatch } from "../redux/hooks";
+import { addTask } from "../redux/slices/taskSlice";
+import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
 
 const QrScannerScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const { theme } = useContext(ThemeContext);
   const styles = themeStyles(theme);
+  const dispatch = useAppDispatch();
+
   const Header: React.FC = () => {
     return (
       <View style={styles.headerContainer}>
@@ -40,7 +47,14 @@ const QrScannerScreen = () => {
 
   const handleBarCodeScanned = ({ type, data }: { type: any; data: any }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    const task: localTask = JSON.parse(data);
+    const temp: localTask = {
+      ...task,
+      id: uuidv4(),
+      createdTimestamp: moment.now(),
+    };
+    dispatch(addTask(temp));
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
   if (hasPermission === null) {
@@ -114,7 +128,7 @@ const themeStyles = (theme: theme) =>
     button: {
       height: 60,
       width: 150,
-      bottom: -130,
+      bottom: -100,
       backgroundColor: "#002B5C",
       alignItems: "center",
       justifyContent: "center",

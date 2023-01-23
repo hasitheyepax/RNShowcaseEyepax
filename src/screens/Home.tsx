@@ -30,14 +30,21 @@ import { useAppSelector } from "../redux/hooks";
 import { selectTasks } from "../redux/slices/taskSlice";
 import { localTask } from "../config/types/localTask";
 import stringUtils from "../utils/stringUtils";
+import QrViewModal from "../components/modals/QrViewModal";
 
 const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
+  const [qrVisible, setQrVisible] = useState(false);
+
   const [activeItem, setActiveItem] = useState<localTask | null>(null);
+  const [activeShareItem, setActiveShareItem] = useState<localTask | null>(
+    null
+  );
 
   useEffect(() => {
     setAddNoteVisible(!!activeItem);
-  }, [activeItem]);
+    setQrVisible(!!activeShareItem);
+  }, [activeItem, activeShareItem]);
 
   const tasks = useAppSelector(selectTasks);
 
@@ -196,6 +203,7 @@ const Home = () => {
           data={tasks}
           setActiveItem={setActiveItem}
           contentContainerStyle={{ paddingBottom: 70 }}
+          setActiveShareItem={setActiveShareItem}
         />
       </View>
     );
@@ -211,6 +219,14 @@ const Home = () => {
         }}
         onSubmit={handleSubmitNote}
         item={activeItem}
+      />
+      <QrViewModal
+        visible={qrVisible}
+        onCancel={() => {
+          setQrVisible(false);
+          if (activeShareItem) setActiveShareItem(null);
+        }}
+        item={activeShareItem}
       />
       {header}
       {homeContent}
