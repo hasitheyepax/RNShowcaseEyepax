@@ -6,8 +6,17 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   TouchableOpacity,
+  Pressable,
+  Share,
 } from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ThemeContext from "../../contexts/themeContext";
 import { theme } from "../../config/colors";
 import Animated, {
@@ -29,6 +38,7 @@ import { removeTask } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import stringUtils from "../../utils/stringUtils";
 import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
+import * as Sharing from "expo-sharing";
 
 type renderItemProps = {
   item: localTask;
@@ -40,10 +50,12 @@ interface Props {
   data: localTask[];
   contentContainerStyle?: ViewStyle;
   setActiveItem?: Function;
+  setActiveShareItem?: Function;
 }
 
 const AnimatedList: React.FC<Props> = (props) => {
-  const { data, contentContainerStyle, setActiveItem } = props;
+  const { data, contentContainerStyle, setActiveItem, setActiveShareItem } =
+    props;
   const { theme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
   const swipeToDeleteEnabled = useAppSelector(selectSwipeToDeleteEnabled);
@@ -116,6 +128,11 @@ const AnimatedList: React.FC<Props> = (props) => {
       setActiveItem?.(item);
     };
 
+    const handleShareTouch = () => {
+      setActiveShareItem?.(item);
+    };
+    const url = "com.app.RNShowcaseEyepax";
+
     return (
       <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
         <Swipeable
@@ -137,11 +154,35 @@ const AnimatedList: React.FC<Props> = (props) => {
               </Text>
             </View>
             <View style={styles.icon}>
-              <SimpleLineIcons
-                name="note"
-                size={20}
-                color={theme.colors.background}
-              />
+              <Pressable
+                onPress={
+                  handleShareTouch
+
+                  // () => {
+
+                  // Share.share(
+                  //   {
+                  //     message: "ABCD" + "\n" + url,
+                  //     url: "http://www.google.com",
+                  //     title: "this is abcd",
+                  //   },
+                  //   {
+                  //     dialogTitle: "abcd dialog title",
+                  //     excludedActivityTypes: [
+                  //       "com.apple.UIKit.activity.PostToTwitter",
+                  //     ],
+                  //   }
+                  // );
+                  // console.log(item);
+                  // }
+                }
+              >
+                <SimpleLineIcons
+                  name="share"
+                  size={20}
+                  color={theme.colors.background}
+                />
+              </Pressable>
             </View>
             <Animated.View
               style={[styles.editContainer, animatedEditContainerStyle]}

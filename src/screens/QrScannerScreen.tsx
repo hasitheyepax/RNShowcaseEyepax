@@ -12,12 +12,28 @@ import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
 const { height, width } = Dimensions.get("window");
 import { LinearGradient } from "expo-linear-gradient";
+import { localTask } from "../config/types/localTask";
+import { useAppDispatch } from "../redux/hooks";
+import { addTask } from "../redux/slices/taskSlice";
+import { v4 as uuidv4 } from "uuid";
+import moment from "moment";
 
 const QrScannerScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const { theme } = useContext(ThemeContext);
   const styles = themeStyles(theme);
+  const dispatch = useAppDispatch();
+
+  const Header: React.FC = () => {
+    return (
+      <View style={styles.headerContainer}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{`QR Scanner`}</Text>
+        </View>
+      </View>
+    );
+  };
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -31,7 +47,14 @@ const QrScannerScreen = () => {
 
   const handleBarCodeScanned = ({ type, data }: { type: any; data: any }) => {
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    const task: localTask = JSON.parse(data);
+    const temp: localTask = {
+      ...task,
+      id: uuidv4(),
+      createdTimestamp: moment.now(),
+    };
+    dispatch(addTask(temp));
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
   if (hasPermission === null) {
@@ -54,9 +77,11 @@ const QrScannerScreen = () => {
         ]}
         locations={[0, 0.3385, 1]}
       >
+        <Header />
         <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={styles.qrScanner}
+          // barCodeTypes={}
         />
         {scanned && (
           <View style={styles.buttonContainer}>
@@ -84,7 +109,7 @@ const themeStyles = (theme: theme) =>
     qrScanner: {
       height: 350,
       width: width,
-      top: 0.2 * height,
+      top: 0.1 * height,
     },
     bottom: {
       height: height,
@@ -103,7 +128,7 @@ const themeStyles = (theme: theme) =>
     button: {
       height: 60,
       width: 150,
-      bottom: -130,
+      bottom: -100,
       backgroundColor: "#002B5C",
       alignItems: "center",
       justifyContent: "center",
@@ -111,5 +136,24 @@ const themeStyles = (theme: theme) =>
     buttonContainer: {
       width: "100%",
       alignItems: "center",
+    },
+    headerContainer: {
+      marginTop: 20,
+      justifyContent: "center",
+      // alignItems: "center",
+      // flex: 1,
+      // backgroundColor: "red",
+      height: 70,
+      zIndex: 10,
+    },
+    headerTextContainer: {
+      // flex: 1,
+      // backgroundColor: "blue",
+      left: 16,
+    },
+    headerText: {
+      fontSize: 24,
+      fontWeight: "600",
+      color: theme.colors.rawText,
     },
   });

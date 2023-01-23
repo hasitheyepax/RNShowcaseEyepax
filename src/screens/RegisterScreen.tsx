@@ -204,7 +204,6 @@ const themeStyles = (theme: theme) =>
       right: 0,
       top: 0,
       flex: 1,
-      //   height: 500,
       zIndex: 2,
     },
     backgroundContainer: {
@@ -214,7 +213,7 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
     },
     headerContainer: {
-      top: 60,
+      top: 0.1 * height,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -226,32 +225,31 @@ const themeStyles = (theme: theme) =>
     imageContainer: {
       justifyContent: "center",
       alignItems: "center",
-      top: 50,
+      top: 0.14 * height,
+      marginBottom: 0.13 * height,
     },
     image: {
-      width: 133,
-      height: 285,
+      width: 0.43 * width,
+      height: 0.34 * height,
     },
     textInputContainer: {
       width: 0.9 * width,
-      height: 50,
+      height: 0.06 * height,
       justifyContent: "center",
-      padding: 10,
+      padding: 0.03 * width,
       borderRadius: 6,
-      //   backgroundColor: "#FFFFFF",
-      //   opacity: 0.1,
-      top: 20,
+      top: 0.04 * height,
     },
     blurViewContainer: {
       alignItems: "center",
       justifyContent: "center",
-      marginTop: 10,
+      marginTop: 0.02 * height,
     },
 
     textWrapper: {
       justifyContent: "center",
       alignItems: "center",
-      marginTop: 10,
+      marginTop: 0.02 * height,
     },
     textStyle: {
       color: "#FFFFFF",
@@ -260,17 +258,6 @@ const themeStyles = (theme: theme) =>
       color: "#7B8FFA",
       textDecorationLine: "underline",
       fontSize: 16,
-    },
-    button: {
-      backgroundColor: theme.colors.secondary,
-      height: 35,
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: 35,
-      marginHorizontal: 60,
-      marginVertical: 10,
-      borderWidth: 1,
-      borderColor: theme.colors.rawText,
     },
     buttonText: {
       fontSize: 16,
@@ -289,12 +276,12 @@ const themeStyles = (theme: theme) =>
     },
     formButton: {
       backgroundColor: "#FA8989",
-      height: 50,
+      height: 0.06 * height,
       alignItems: "center",
       justifyContent: "center",
       borderRadius: 6,
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
-      marginTop: 20,
+      marginTop: 0.06 * height,
     },
   });

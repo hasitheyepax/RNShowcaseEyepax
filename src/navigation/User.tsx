@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { StyleSheet } from "react-native";
 import AnimatedTabBar from "../components/AnimatedTabBar";
 import homeIcon from "../components/assets/icons/home.icon.json";
+import qrIcon from "../components/assets/icons/qr.icon.json";
 import profileIcon from "../components/assets/icons/profile.icon.json";
 import searchIcon from "../components/assets/icons/search.icon.json";
 import settingsIcon from "../components/assets/icons/settings.icon.json";
@@ -49,13 +50,13 @@ const User = () => {
               ref={ref}
               loop={false}
               style={styles.icon}
-              source={searchIcon}
+              source={qrIcon}
             />
           ),
           headerStyle: styles.header,
           headerShown: false,
         }}
-        name="Search"
+        name="QR Scanner"
         component={QrScannerScreen}
       />
       <BottomTabs.Screen

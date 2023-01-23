@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Dimensions } from "react-native";
 import React, { useContext, useEffect, useRef } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -14,8 +14,10 @@ import {
   toggleShowTodos,
   toggleSwipeToDeleteEnable,
 } from "../redux/slices/settingsSlice";
+import { LinearGradient } from "expo-linear-gradient";
 
 type Props = {};
+const { height, width } = Dimensions.get("window");
 
 const Settings = (props: Props) => {
   const { theme } = useContext(ThemeContext);
@@ -75,8 +77,19 @@ const Settings = (props: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
-      <SettingsContent />
+      <View style={styles.bottom}></View>
+      <LinearGradient
+        style={styles.gradientContainer}
+        colors={[
+          "#002B5C",
+          "rgba(123, 143, 250, 0.85)",
+          "rgba(250, 137, 137, 0)",
+        ]}
+        locations={[0, 0.3385, 1]}
+      >
+        <Header />
+        <SettingsContent />
+      </LinearGradient>
     </SafeAreaView>
   );
 };
@@ -87,7 +100,7 @@ const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: theme.colors.background,
+      // backgroundColor: theme.colors.background,
     },
     headerContainer: {
       marginTop: 20,
@@ -100,16 +113,29 @@ const themeStyles = (theme: theme) =>
       width: 200,
     },
     headerTextContainer: {
-      flex: 1,
+      left: 16,
     },
     headerText: {
-      fontSize: 20,
-      fontWeight: "300",
+      fontSize: 24,
+      fontWeight: "600",
       color: theme.colors.rawText,
     },
     settingsContainer: {
-      backgroundColor: theme.colors.background,
       flex: 1,
       justifyContent: "center",
+    },
+    gradientContainer: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: 0,
+      flex: 1,
+      height: 500,
+    },
+    bottom: {
+      height: height,
+      width: width,
+      backgroundColor: "#FA8989",
+      position: "absolute",
     },
   });
