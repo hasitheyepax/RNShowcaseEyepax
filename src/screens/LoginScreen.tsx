@@ -83,7 +83,6 @@ const LoginScreen = (props: Props) => {
           initialValues={{ email: inputs.email, password: inputs.password }}
           validationSchema={validationSchema}
           onSubmit={async (values, formikActions) => {
-            formikActions.resetForm();
             const { email, password } = values;
             const users = await getUsers();
             if (!email || !password) {
@@ -116,6 +115,7 @@ const LoginScreen = (props: Props) => {
                 }
               }
             }
+            formikActions.resetForm();
           }}
         >
           {({ values, errors, handleChange, handleBlur, handleSubmit }) => {

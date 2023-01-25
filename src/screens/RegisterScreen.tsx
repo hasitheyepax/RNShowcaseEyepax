@@ -66,29 +66,6 @@ const RegisterScreen = (props: Props) => {
     };
   });
 
-  const handleRegister = async () => {
-    const { email, fullName, password } = inputs;
-    if (!email || !fullName || !password) {
-      Toast.show({
-        type: "error",
-        text1: "Please fill all fields",
-        text2: "Email, Full Name and Password are required!",
-      });
-    } else {
-      const user: user = {
-        email,
-        fullName,
-        password,
-      };
-      await addUser(user);
-      Toast.show({
-        type: "success",
-        text1: "User registration successful",
-        text2: "Please login again",
-      });
-    }
-  };
-
   const handleGotoLogin = () => {
     navigation.navigate(Navigation.loginScreen);
   };
@@ -109,7 +86,6 @@ const RegisterScreen = (props: Props) => {
           }}
           validationSchema={validationSchema}
           onSubmit={async (values, formikActions) => {
-            formikActions.resetForm();
             const { email, fullName, password } = values;
             if (!email || !fullName || !password) {
               Toast.show({
@@ -130,6 +106,7 @@ const RegisterScreen = (props: Props) => {
                 text2: "Please login again",
               });
             }
+            formikActions.resetForm();
           }}
         >
           {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
@@ -273,7 +250,7 @@ const RegisterScreen = (props: Props) => {
                       withSpring(1, { damping: 1, overshootClamping: true })
                     );
 
-                    handleRegister();
+                    handleSubmit();
                   }}
                 >
                   <Animated.View
