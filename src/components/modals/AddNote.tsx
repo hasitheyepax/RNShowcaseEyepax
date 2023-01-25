@@ -21,6 +21,7 @@ interface Props {
   visible: boolean;
   onCancel: Function;
   onSubmit: Function;
+  taskType: "note" | "todo";
   item?: localTask | null;
 }
 
@@ -30,7 +31,7 @@ const validationSchema = yup.object({
 });
 
 const AddNote: React.FC<Props> = (props) => {
-  let { visible, onCancel, onSubmit, item } = props;
+  let { visible, onCancel, onSubmit, item, taskType } = props;
   const dispatch = useAppDispatch();
 
   return (
@@ -60,7 +61,7 @@ const AddNote: React.FC<Props> = (props) => {
                 id: uuidv4(),
                 title: values.title,
                 description: values.description,
-                type: "note",
+                type: taskType,
                 createdTimestamp: moment.now(),
               };
               dispatch(addTask(task));
@@ -72,7 +73,15 @@ const AddNote: React.FC<Props> = (props) => {
             return (
               <View style={styles.contentContainer}>
                 <View style={styles.interactionContainer}>
-                  <Text style={styles.titleText}>{`Add Note`}</Text>
+                  {!item ? (
+                    <Text style={styles.titleText}>
+                      {taskType === "note" ? `Add Note` : `Add Todo`}
+                    </Text>
+                  ) : (
+                    <Text style={styles.titleText}>
+                      {item.type === "note" ? `Edit Note` : `Edit Todo`}
+                    </Text>
+                  )}
                   <AppTextInput
                     label={`Title`}
                     value={values.title}
