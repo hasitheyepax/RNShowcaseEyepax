@@ -5,7 +5,6 @@ import {
   Text,
   Pressable,
   Image,
-  SafeAreaView,
   Dimensions,
   Platform,
 } from "react-native";
@@ -20,11 +19,6 @@ import Animated, {
   interpolate,
   withTiming,
 } from "react-native-reanimated";
-import AddNotesModalComponent from "../components/AddNotesModalComponent";
-import AddTodosModalComponent from "../components/AddTodosModalComponents";
-import ViewAndEditNoteModalComponent from "../components/ViewAndEditNoteModalComponent";
-import ViewAndEditTodoModalComponent from "../components/ViewAndEditTodoModalComponent";
-import { getNotes, getTodos } from "../helpers/asyncStorage";
 import AnimatedList from "../components/animatedList/AnimatedList";
 import AddNote from "../components/modals/AddNote";
 import { useAppSelector } from "../redux/hooks";

@@ -290,8 +290,8 @@ const { width, height } = Dimensions.get("window");
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
-      flex: 1,
-      justifyContent: "flex-end",
+      // flex: 1,
+      // justifyContent: "flex-end",
     },
     gradientContainer: {
       // position: "absolute",

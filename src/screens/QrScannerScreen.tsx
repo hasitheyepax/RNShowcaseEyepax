@@ -132,7 +132,7 @@ const themeStyles = (theme: theme) =>
     },
     gradientContainer: {
       flex: 1,
-      paddingTop: Platform.OS === "ios" ? 60 : undefined,
+      paddingTop: Platform.OS === "ios" ? 60 : 38,
     },
     button: {
       height: 60,
