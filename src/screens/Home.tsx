@@ -250,9 +250,11 @@ const themeStyles = (theme: theme) =>
     container: {
       // backgroundColor: theme.colors.background,
       flex: 1,
+      // height: height,
     },
     wrapper: {
       flex: 1,
+      // height: height,
       // backgroundColor: theme.colors.background,
     },
     headerContainer: {
@@ -319,7 +321,7 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
       height: 50,
       width: 50,
-      zIndex: 16,
+      zIndex: 24,
       right: 30,
       bottom: 30,
     },
@@ -332,12 +334,12 @@ const themeStyles = (theme: theme) =>
       width: 60,
     },
     gradientContainer: {
-      position: "absolute",
+      // position: "absolute",
       left: 0,
       right: 0,
       top: 0,
       flex: 1,
-      height: 500,
+      // height: height,
     },
     bottom: {
       height: height,
