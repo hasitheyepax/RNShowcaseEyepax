@@ -37,6 +37,7 @@ const { height, width } = Dimensions.get("window");
 
 const Home = () => {
   const [addNoteVisible, setAddNoteVisible] = useState(false);
+  const [taskType, setTaskType] = useState("note");
   const [qrVisible, setQrVisible] = useState(false);
 
   const [activeItem, setActiveItem] = useState<localTask | null>(null);
@@ -118,12 +119,15 @@ const Home = () => {
   const handleAddNote = () => {
     buttonPosition.value = 0;
     setAddNoteVisible(true);
+    setTaskType("note");
     //@ts-ignore
     animationRef.current.play();
   };
 
   const handleAddTodo = () => {
     buttonPosition.value = 0;
+    setAddNoteVisible(true);
+    setTaskType("todo");
     //@ts-ignore
     animationRef.current.play();
   };
@@ -227,6 +231,7 @@ const Home = () => {
             if (activeItem) setActiveItem(null);
           }}
           onSubmit={handleSubmitNote}
+          taskType={taskType === "note" ? "note" : "todo"}
           item={activeItem}
         />
         <QrViewModal

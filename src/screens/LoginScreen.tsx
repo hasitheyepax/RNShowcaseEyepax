@@ -67,41 +67,6 @@ const LoginScreen = (props: Props) => {
     };
   });
 
-  const handleLogin = async () => {
-    const { email, password } = inputs;
-    const users = await getUsers();
-    if (!email || !password) {
-      if (!users) {
-        Toast.show({
-          type: "error",
-          text1: "Please fill both fields",
-          text2: "Email and Password are required!",
-        });
-      }
-    } else {
-      if (!users) {
-        Toast.show({
-          type: "error",
-          text1: "No users found",
-          text2: "Please register a user first!",
-        });
-      } else {
-        const user = users.find((e) => {
-          return e.email === email;
-        });
-        if (user?.password === password) {
-          dispatch(login());
-        } else {
-          Toast.show({
-            type: "error",
-            text1: "Invalid credentials",
-            text2: "Please check your email and password",
-          });
-        }
-      }
-    }
-  };
-
   const handleGotoRegister = () => {
     navigation.navigate(Navigation.registerScreen);
   };
@@ -118,7 +83,6 @@ const LoginScreen = (props: Props) => {
           initialValues={{ email: inputs.email, password: inputs.password }}
           validationSchema={validationSchema}
           onSubmit={async (values, formikActions) => {
-            formikActions.resetForm();
             const { email, password } = values;
             const users = await getUsers();
             if (!email || !password) {
@@ -151,6 +115,7 @@ const LoginScreen = (props: Props) => {
                 }
               }
             }
+            formikActions.resetForm();
           }}
         >
           {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
