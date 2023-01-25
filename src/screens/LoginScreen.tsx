@@ -28,6 +28,9 @@ import { useNavigation } from "@react-navigation/native";
 import { Navigation } from "../config";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../navigation/RootStackParams";
+import * as Yup from "yup";
+import { Formik } from "formik";
+import AppAuthTextInput from "../components/textInput/AppAuthTextInputs";
 
 type Props = {};
 
@@ -35,6 +38,15 @@ type screenProp = StackNavigationProp<
   RootStackParamList,
   Navigation.loginScreen
 >;
+
+const validationSchema = Yup.object({
+  email: Yup.string().email("Invalid email!").required("Email is required!"),
+  password: Yup.string()
+    .trim()
+    .min(8, "Invalid password!")
+    .required("Password is required!"),
+});
+
 const LoginScreen = (props: Props) => {
   const navigation = useNavigation<screenProp>();
 
@@ -44,7 +56,6 @@ const LoginScreen = (props: Props) => {
 
   const [inputs, setInputs] = useState({
     email: "",
-    fullName: "",
     password: "",
   });
 
@@ -103,77 +114,121 @@ const LoginScreen = (props: Props) => {
         colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
         locations={[0.0087, 0.4479, 0.75]}
       >
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>{"Optimiser"}</Text>
-        </View>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../../assets/login.png")}
-            style={styles.image}
-          />
-        </View>
-        <View style={styles.blurViewContainer}>
-          <BlurView intensity={2} style={styles.textInputContainer}>
-            <TextInput
-              accessible={true}
-              accessibilityLabel={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE}
-              accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
-              placeholder="Email"
-              placeholderTextColor="#FFFFFF"
-              style={styles.textInput}
-              value={inputs.email}
-              onChangeText={(text) => {
-                setInputs({
-                  ...inputs,
-                  email: text,
+        <Formik
+          initialValues={{ email: inputs.email, password: inputs.password }}
+          validationSchema={validationSchema}
+          onSubmit={async (values, formikActions) => {
+            formikActions.resetForm();
+            const { email, password } = values;
+            const users = await getUsers();
+            if (!email || !password) {
+              if (!users) {
+                Toast.show({
+                  type: "error",
+                  text1: "Please fill both fields",
+                  text2: "Email and Password are required!",
                 });
-              }}
-            />
-          </BlurView>
-        </View>
-        <View style={styles.blurViewContainer}>
-          <BlurView intensity={2} style={styles.textInputContainer}>
-            <TextInput
-              accessible={true}
-              accessibilityLabel={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE}
-              accessibilityHint={stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT}
-              placeholder="Password"
-              placeholderTextColor="#FFFFFF"
-              style={styles.textInput}
-              value={inputs.password}
-              onChangeText={(text) => {
-                setInputs({
-                  ...inputs,
-                  password: text,
+              }
+            } else {
+              if (!users) {
+                Toast.show({
+                  type: "error",
+                  text1: "No users found",
+                  text2: "Please register a user first!",
                 });
-              }}
-              secureTextEntry
-            />
-          </BlurView>
-        </View>
-        <Pressable
-          accessible={true}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-          onPress={() => {
-            formButtonScale.value = withSequence(
-              withSpring(1.05, { damping: 1, overshootClamping: true }),
-              withSpring(1, { damping: 1, overshootClamping: true })
-            );
-
-            handleLogin();
+              } else {
+                const user = users.find((e) => {
+                  return e.email === email;
+                });
+                if (user?.password === password) {
+                  dispatch(login());
+                } else {
+                  Toast.show({
+                    type: "error",
+                    text1: "Invalid credentials",
+                    text2: "Please check your email and password",
+                  });
+                }
+              }
+            }
           }}
         >
-          <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
-            <Text style={styles.buttonText}>{"Login"}</Text>
-          </Animated.View>
-        </Pressable>
-        <View style={styles.textWrapper}>
-          <Text style={styles.textStyle}>{"Do not have an account?"}</Text>
-          <Pressable onPress={handleGotoRegister}>
-            <Text style={styles.registerText}>{"Register"}</Text>
-          </Pressable>
-        </View>
+          {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
+            return (
+              <>
+                <View style={styles.headerContainer}>
+                  <Text style={styles.headerText}>{"Optimiser"}</Text>
+                </View>
+                <View style={styles.imageContainer}>
+                  <Image
+                    source={require("../../assets/login.png")}
+                    style={styles.image}
+                  />
+                </View>
+                <AppAuthTextInput
+                  error={errors.email}
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
+                  }
+                  accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
+                  placeholder="Email"
+                  placeholderTextColor="#FFFFFF"
+                  value={values.email}
+                  onBlur={handleBlur("email")}
+                  onChangeText={handleChange("email")}
+                />
+                <AppAuthTextInput
+                  error={errors.password}
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
+                  }
+                  accessibilityHint={
+                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT
+                  }
+                  placeholder="Password"
+                  placeholderTextColor="#FFFFFF"
+                  style={styles.textInput}
+                  value={values.password}
+                  onBlur={handleBlur("password")}
+                  onChangeText={handleChange("password")}
+                  secureTextEntry
+                />
+
+                <Pressable
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
+                  }
+                  accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
+                  onPress={() => {
+                    formButtonScale.value = withSequence(
+                      withSpring(1.05, { damping: 1, overshootClamping: true }),
+                      withSpring(1, { damping: 1, overshootClamping: true })
+                    );
+
+                    handleSubmit();
+                  }}
+                >
+                  <Animated.View
+                    style={[styles.formButton, formButtonAnimatedStyle]}
+                  >
+                    <Text style={styles.buttonText}>{"Login"}</Text>
+                  </Animated.View>
+                </Pressable>
+                <View style={styles.textWrapper}>
+                  <Text style={styles.textStyle}>
+                    {"Do not have an account?"}
+                  </Text>
+                  <Pressable onPress={handleGotoRegister}>
+                    <Text style={styles.registerText}>{"Register"}</Text>
+                  </Pressable>
+                </View>
+              </>
+            );
+          }}
+        </Formik>
       </LinearGradient>
     </View>
   );
@@ -272,6 +327,6 @@ const themeStyles = (theme: theme) =>
       borderRadius: 6,
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
-      marginTop: 0.06 * height,
+      marginTop: 0.04 * height,
     },
   });
