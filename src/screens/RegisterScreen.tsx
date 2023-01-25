@@ -7,6 +7,8 @@ import {
   TextInput,
   Pressable,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -71,13 +73,27 @@ const RegisterScreen = (props: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.backgroundContainer}></View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.backgroundContainer}
+    >
+      {/* <View style={styles.backgroundContainer}></View> */}
       <LinearGradient
         style={styles.gradientContainer}
         colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
         locations={[0.0087, 0.4479, 0.75]}
       >
+        <View style={{ flex: 1 }}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>{"Optimiser"}</Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../../assets/login.png")}
+              style={styles.image}
+            />
+          </View>
+        </View>
         <Formik
           initialValues={{
             email: inputs.email,
@@ -111,16 +127,7 @@ const RegisterScreen = (props: Props) => {
         >
           {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
             return (
-              <>
-                <View style={styles.headerContainer}>
-                  <Text style={styles.headerText}>{"Optimiser"}</Text>
-                </View>
-                <View style={styles.imageContainer}>
-                  <Image
-                    source={require("../../assets/login.png")}
-                    style={styles.image}
-                  />
-                </View>
+              <View style={styles.inputs}>
                 <AppAuthTextInput
                   error={errors.email}
                   accessible={true}
@@ -267,12 +274,12 @@ const RegisterScreen = (props: Props) => {
                     <Text style={styles.registerText}>{"Login"}</Text>
                   </Pressable>
                 </View>
-              </>
+              </View>
             );
           }}
         </Formik>
       </LinearGradient>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -287,18 +294,16 @@ const themeStyles = (theme: theme) =>
       justifyContent: "flex-end",
     },
     gradientContainer: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
+      // position: "absolute",
+      // left: 0,
+      // right: 0,
+      // top: 0,
       flex: 1,
-      zIndex: 2,
+      // zIndex: 2,
     },
     backgroundContainer: {
-      height: height,
-      width: width,
       backgroundColor: "#002B5C",
-      position: "absolute",
+      flex: 1,
     },
     headerContainer: {
       top: 0.1 * height,
@@ -333,7 +338,6 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       marginTop: 0.02 * height,
     },
-
     textWrapper: {
       justifyContent: "center",
       alignItems: "center",
@@ -371,5 +375,10 @@ const themeStyles = (theme: theme) =>
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
       marginTop: 0.03 * height,
+    },
+    inputs: {
+      flex: 1,
+      marginBottom: 40,
+      justifyContent: "flex-end",
     },
   });

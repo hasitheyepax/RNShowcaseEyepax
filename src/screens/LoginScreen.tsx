@@ -76,19 +76,15 @@ const LoginScreen = (props: Props) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, backgroundColor: "yellow", height: 200 }}
+      style={styles.backgroundContainer}
     >
-      <View style={styles.container}>
-        <View style={styles.backgroundContainer} />
-        <LinearGradient
-          style={styles.gradientContainer}
-          colors={[
-            "#FA8989",
-            "rgba(123, 143, 250, 0.51)",
-            "rgba(0, 43, 92, 0)",
-          ]}
-          locations={[0.0087, 0.4479, 0.75]}
-        >
+      {/* <View style={styles.backgroundContainer} /> */}
+      <LinearGradient
+        style={styles.gradientContainer}
+        colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
+        locations={[0.0087, 0.4479, 0.75]}
+      >
+        <View style={{ flex: 1 }}>
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>{"Optimiser"}</Text>
           </View>
@@ -98,120 +94,117 @@ const LoginScreen = (props: Props) => {
               style={styles.image}
             />
           </View>
-          <Formik
-            initialValues={{ email: inputs.email, password: inputs.password }}
-            validationSchema={validationSchema}
-            onSubmit={async (values, formikActions) => {
-              const { email, password } = values;
-              const users = await getUsers();
-              if (!email || !password) {
-                if (!users) {
-                  Toast.show({
-                    type: "error",
-                    text1: "Please fill both fields",
-                    text2: "Email and Password are required!",
-                  });
-                }
+        </View>
+        <Formik
+          initialValues={{ email: inputs.email, password: inputs.password }}
+          validationSchema={validationSchema}
+          onSubmit={async (values, formikActions) => {
+            const { email, password } = values;
+            const users = await getUsers();
+            if (!email || !password) {
+              if (!users) {
+                Toast.show({
+                  type: "error",
+                  text1: "Please fill both fields",
+                  text2: "Email and Password are required!",
+                });
+              }
+            } else {
+              if (!users) {
+                Toast.show({
+                  type: "error",
+                  text1: "No users found",
+                  text2: "Please register a user first!",
+                });
               } else {
-                if (!users) {
+                const user = users.find((e) => {
+                  return e.email === email;
+                });
+                if (user?.password === password) {
+                  dispatch(login());
+                } else {
                   Toast.show({
                     type: "error",
-                    text1: "No users found",
-                    text2: "Please register a user first!",
+                    text1: "Invalid credentials",
+                    text2: "Please check your email and password",
                   });
-                } else {
-                  const user = users.find((e) => {
-                    return e.email === email;
-                  });
-                  if (user?.password === password) {
-                    dispatch(login());
-                  } else {
-                    Toast.show({
-                      type: "error",
-                      text1: "Invalid credentials",
-                      text2: "Please check your email and password",
-                    });
-                  }
                 }
               }
-              formikActions.resetForm();
-            }}
-          >
-            {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
-              return (
-                <>
-                  <AppAuthTextInput
-                    error={errors.email}
-                    accessible={true}
-                    accessibilityLabel={
-                      stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
-                    }
-                    accessibilityHint={
-                      stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT
-                    }
-                    placeholder="Email"
-                    placeholderTextColor="#FFFFFF"
-                    value={values.email}
-                    onBlur={handleBlur("email")}
-                    onChangeText={handleChange("email")}
-                  />
-                  <AppAuthTextInput
-                    error={errors.password}
-                    accessible={true}
-                    accessibilityLabel={
-                      stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
-                    }
-                    accessibilityHint={
-                      stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT
-                    }
-                    placeholder="Password"
-                    placeholderTextColor="#FFFFFF"
-                    style={styles.textInput}
-                    value={values.password}
-                    onBlur={handleBlur("password")}
-                    onChangeText={handleChange("password")}
-                    secureTextEntry
-                  />
-                  <Pressable
-                    accessible={true}
-                    accessibilityLabel={
-                      stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
-                    }
-                    accessibilityHint={
-                      stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT
-                    }
-                    onPress={() => {
-                      formButtonScale.value = withSequence(
-                        withSpring(1.05, {
-                          damping: 1,
-                          overshootClamping: true,
-                        }),
-                        withSpring(1, { damping: 1, overshootClamping: true })
-                      );
+            }
+            formikActions.resetForm();
+          }}
+        >
+          {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
+            return (
+              <View style={styles.inputs}>
+                <AppAuthTextInput
+                  error={errors.email}
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
+                  }
+                  accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
+                  placeholder="Email"
+                  placeholderTextColor="#FFFFFF"
+                  value={values.email}
+                  onBlur={handleBlur("email")}
+                  onChangeText={handleChange("email")}
+                />
+                <AppAuthTextInput
+                  error={errors.password}
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
+                  }
+                  accessibilityHint={
+                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT
+                  }
+                  placeholder="Password"
+                  placeholderTextColor="#FFFFFF"
+                  style={styles.textInput}
+                  value={values.password}
+                  onBlur={handleBlur("password")}
+                  onChangeText={handleChange("password")}
+                  secureTextEntry
+                />
+                <Pressable
+                  accessible={true}
+                  accessibilityLabel={
+                    stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
+                  }
+                  accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
+                  onPress={() => {
+                    formButtonScale.value = withSequence(
+                      withSpring(1.05, {
+                        damping: 1,
+                        overshootClamping: true,
+                      }),
+                      withSpring(1, { damping: 1, overshootClamping: true })
+                    );
 
-                      handleSubmit();
-                    }}
+                    handleSubmit();
+                  }}
+                >
+                  <Animated.View
+                    style={[styles.formButton, formButtonAnimatedStyle]}
                   >
-                    <Animated.View
-                      style={[styles.formButton, formButtonAnimatedStyle]}
-                    >
-                      <Text style={styles.buttonText}>{"Login"}</Text>
-                    </Animated.View>
+                    <Text style={styles.buttonText}>{"Login"}</Text>
+                  </Animated.View>
+                </Pressable>
+                <View style={styles.textWrapper}>
+                  <Text style={styles.textStyle}>
+                    {"Do not have an account?"}
+                  </Text>
+                  <Pressable onPress={handleGotoRegister}>
+                    <Text style={styles.registerText}>{"Register"}</Text>
                   </Pressable>
-                  <View style={styles.textWrapper}>
-                    <Text style={styles.textStyle}>
-                      {"Do not have an account?"}
-                    </Text>
-                    <Pressable onPress={handleGotoRegister}>
-                      <Text style={styles.registerText}>{"Register"}</Text>
-                    </Pressable>
-                  </View>
-                </>
-              );
-            }}
-          </Formik>
-        </LinearGradient>
-      </View>
+                </View>
+              </View>
+            );
+          }}
+        </Formik>
+        {/* </View> */}
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 };
@@ -231,15 +224,13 @@ const themeStyles = (theme: theme) =>
       // left: 0,
       // right: 0,
       // top: 0,
-      // flex: 1,
+      flex: 1,
       //   height: 500,
       // zIndex: 2,
     },
     backgroundContainer: {
-      height: height,
-      width: width,
       backgroundColor: "#002B5C",
-      position: "absolute",
+      flex: 1,
     },
     headerContainer: {
       top: 0.1 * height,
@@ -279,7 +270,7 @@ const themeStyles = (theme: theme) =>
     textWrapper: {
       justifyContent: "center",
       alignItems: "center",
-      marginTop: 0.02 * height,
+      // marginTop: 0.02 * height,
     },
     textStyle: {
       color: "#FFFFFF",
@@ -309,5 +300,11 @@ const themeStyles = (theme: theme) =>
       width: 0.9 * width,
       marginHorizontal: 0.05 * width,
       marginTop: 0.04 * height,
+      marginBottom: 0.02 * height,
+    },
+    inputs: {
+      flex: 1,
+      marginBottom: 40,
+      justifyContent: "flex-end",
     },
   });

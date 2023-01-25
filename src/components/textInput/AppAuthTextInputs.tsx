@@ -35,8 +35,10 @@ const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: {
-    width: 0.95 * width,
     borderRadius: 10,
+    backgroundColor: "#2C033C",
+    marginHorizontal: 10,
+    marginVertical: 5,
   },
   labelContainer: {
     flexDirection: "row",
