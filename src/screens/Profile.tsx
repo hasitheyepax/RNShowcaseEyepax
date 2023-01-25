@@ -7,6 +7,7 @@ import {
   Pressable,
   SafeAreaView,
   Dimensions,
+  Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
@@ -136,7 +137,7 @@ const Profile = (props: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.wrapper}>
+    <View style={styles.wrapper}>
       <View style={styles.bottom}></View>
       <LinearGradient
         style={styles.gradientContainer}
@@ -150,7 +151,7 @@ const Profile = (props: Props) => {
         <Header />
         <ProfileContent />
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -162,24 +163,17 @@ const themeStyles = (theme: theme) =>
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      // backgroundColor: theme.colors.background,
     },
     wrapper: {
       flex: 1,
-      // backgroundColor: theme.colors.background,
     },
     headerContainer: {
       marginTop: 20,
       justifyContent: "center",
-      // alignItems: "center",
-      // flex: 1,
-      // backgroundColor: "red",
       height: 70,
       zIndex: 10,
     },
     headerTextContainer: {
-      // flex: 1,
-      // backgroundColor: "blue",
       left: 16,
     },
     headerText: {
@@ -261,37 +255,12 @@ const themeStyles = (theme: theme) =>
       right: 0,
       borderRadius: 25,
     },
-    // leftCurtain: {
-    //   height: 400,
-    //   width: 300,
-    //   position: "absolute",
-    //   backgroundColor: theme.colors.secondary,
-    //   opacity: 0.4,
-    //   borderBottomRightRadius: 1200,
-    //   overflow: "hidden",
-    //   borderTopRightRadius: 200,
-    // },
-    // rightCurtain: {
-    //   height: 400,
-    //   width: 300,
-    //   position: "absolute",
-    //   backgroundColor: theme.colors.card,
-    //   opacity: 0.4,
-    //   borderBottomLeftRadius: 1200,
-    //   overflow: "hidden",
-    //   borderTopLeftRadius: 200,
-    //   right: 0,
-    // },
     logoutText: {
       color: theme.colors.rawText,
     },
     gradientContainer: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
       flex: 1,
-      height: 500,
+      paddingTop: Platform.OS === "ios" ? 20 : undefined,
     },
     bottom: {
       height: height,

@@ -6,6 +6,7 @@ import {
   Button,
   Dimensions,
   Pressable,
+  Platform,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import ThemeContext from "../contexts/themeContext";
@@ -47,13 +48,17 @@ const QrScannerScreen = () => {
 
   const handleBarCodeScanned = ({ type, data }: { type: any; data: any }) => {
     setScanned(true);
-    const task: localTask = JSON.parse(data);
-    const temp: localTask = {
-      ...task,
-      id: uuidv4(),
-      createdTimestamp: moment.now(),
-    };
-    dispatch(addTask(temp));
+    try {
+      const task: localTask = JSON.parse(data);
+      const temp: localTask = {
+        ...task,
+        id: uuidv4(),
+        createdTimestamp: moment.now(),
+      };
+      dispatch(addTask(temp));
+    } catch (error) {
+      console.log("scan failed");
+    }
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
@@ -66,8 +71,7 @@ const QrScannerScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.bottom}></View>
-
+      <View style={styles.bottom} />
       <LinearGradient
         style={styles.gradientContainer}
         colors={[
@@ -78,12 +82,20 @@ const QrScannerScreen = () => {
         locations={[0, 0.3385, 1]}
       >
         <Header />
-        <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={styles.qrScanner}
-          // barCodeTypes={}
-        />
-        {scanned && (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
+          <BarCodeScanner
+            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+            style={styles.qrScanner}
+            // barCodeTypes={}
+          />
+        </View>
+        {true && (
           <View style={styles.buttonContainer}>
             <View style={styles.button}>
               <Pressable onPress={() => setScanned(false)}>
@@ -102,14 +114,15 @@ const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      alignItems: "center",
-      justifyContent: "center",
+      // alignItems: "center",
+      // justifyContent: "center",
       // backgroundColor: theme.colors.background,
     },
     qrScanner: {
-      height: 350,
-      width: width,
-      top: 0.1 * height,
+      height: height * 0.5,
+      width: "80%",
+      borderRadius: 10,
+      overflow: "hidden",
     },
     bottom: {
       height: height,
@@ -118,12 +131,8 @@ const themeStyles = (theme: theme) =>
       position: "absolute",
     },
     gradientContainer: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
       flex: 1,
-      height: 500,
+      paddingTop: Platform.OS === "ios" ? 60 : undefined,
     },
     button: {
       height: 60,
@@ -138,17 +147,12 @@ const themeStyles = (theme: theme) =>
       alignItems: "center",
     },
     headerContainer: {
-      marginTop: 20,
-      justifyContent: "center",
-      // alignItems: "center",
-      // flex: 1,
-      // backgroundColor: "red",
-      height: 70,
-      zIndex: 10,
+      // marginTop: 20,
+      // justifyContent: "center",
+      // height: 70,
+      // zIndex: 10,
     },
     headerTextContainer: {
-      // flex: 1,
-      // backgroundColor: "blue",
       left: 16,
     },
     headerText: {

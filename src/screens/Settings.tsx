@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions } from "react-native";
+import { StyleSheet, Text, View, Dimensions, Platform } from "react-native";
 import React, { useContext, useEffect, useRef } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -44,12 +44,14 @@ const Settings = (props: Props) => {
         <View style={styles.headerTextContainer}>
           <Text style={styles.headerText}>{`Settings`}</Text>
         </View>
-        <Lottie
-          ref={animationRef}
-          loop={false}
-          style={styles.animatedIcon}
-          source={settingsIcon}
-        />
+        <View>
+          <Lottie
+            ref={animationRef}
+            loop={false}
+            style={styles.animatedIcon}
+            source={settingsIcon}
+          />
+        </View>
       </View>
     );
   };
@@ -76,8 +78,8 @@ const Settings = (props: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.bottom}></View>
+    <View style={styles.container}>
+      <View style={styles.bottom} />
       <LinearGradient
         style={styles.gradientContainer}
         colors={[
@@ -90,7 +92,7 @@ const Settings = (props: Props) => {
         <Header />
         <SettingsContent />
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -100,18 +102,8 @@ const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      // backgroundColor: theme.colors.background,
     },
-    headerContainer: {
-      marginTop: 20,
-      justifyContent: "center",
-      alignItems: "center",
-      flex: 1,
-    },
-    animatedIcon: {
-      height: 200,
-      width: 200,
-    },
+    headerContainer: {},
     headerTextContainer: {
       left: 16,
     },
@@ -120,17 +112,19 @@ const themeStyles = (theme: theme) =>
       fontWeight: "600",
       color: theme.colors.rawText,
     },
+    animatedIcon: {
+      height: 200,
+      width: 200,
+      alignSelf: "center",
+      marginTop: 20,
+    },
     settingsContainer: {
       flex: 1,
       justifyContent: "center",
     },
     gradientContainer: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
       flex: 1,
-      height: 500,
+      paddingTop: Platform.OS === "ios" ? 60 : undefined,
     },
     bottom: {
       height: height,

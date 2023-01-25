@@ -7,6 +7,7 @@ import {
   Image,
   SafeAreaView,
   Dimensions,
+  Platform,
 } from "react-native";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
@@ -217,12 +218,16 @@ const Home = () => {
   }, [tasks]);
 
   return (
-    <SafeAreaView style={styles.wrapper}>
-      <View style={styles.bottom}></View>
+    <View style={styles.wrapper}>
+      <View style={styles.bottom} />
       <LinearGradient
         style={styles.gradientContainer}
-        colors={["rgba(123, 143, 250, 0.51)", "rgba(250, 137, 137, 0)"]}
-        locations={[0.1646, 0.9292]}
+        colors={[
+          "#002B5C",
+          "rgba(123, 143, 250, 0.85)",
+          "rgba(250, 137, 137, 0)",
+        ]}
+        locations={[0, 0.3385, 1]}
       >
         <AddNote
           visible={addNoteVisible}
@@ -245,7 +250,7 @@ const Home = () => {
         {header}
         {homeContent}
       </LinearGradient>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -281,7 +286,6 @@ const themeStyles = (theme: theme) =>
       fontWeight: "600",
       color: theme.colors.rawText,
     },
-
     qaContainer: {
       flex: 1,
       flexDirection: "row",
@@ -340,16 +344,17 @@ const themeStyles = (theme: theme) =>
     },
     gradientContainer: {
       // position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
+      // left: 0,
+      // right: 0,
+      // top: 0,
       flex: 1,
       // height: height,
+      paddingTop: Platform.OS === "ios" ? 20 : undefined,
     },
     bottom: {
       height: height,
       width: width,
-      backgroundColor: "#002B5C",
+      backgroundColor: "#FA8989",
       position: "absolute",
     },
   });

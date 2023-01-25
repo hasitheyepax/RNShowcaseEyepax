@@ -7,6 +7,8 @@ import {
   TextInput,
   Pressable,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -72,130 +74,145 @@ const LoginScreen = (props: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.backgroundContainer}></View>
-      <LinearGradient
-        style={styles.gradientContainer}
-        colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
-        locations={[0.0087, 0.4479, 0.75]}
-      >
-        <Formik
-          initialValues={{ email: inputs.email, password: inputs.password }}
-          validationSchema={validationSchema}
-          onSubmit={async (values, formikActions) => {
-            const { email, password } = values;
-            const users = await getUsers();
-            if (!email || !password) {
-              if (!users) {
-                Toast.show({
-                  type: "error",
-                  text1: "Please fill both fields",
-                  text2: "Email and Password are required!",
-                });
-              }
-            } else {
-              if (!users) {
-                Toast.show({
-                  type: "error",
-                  text1: "No users found",
-                  text2: "Please register a user first!",
-                });
-              } else {
-                const user = users.find((e) => {
-                  return e.email === email;
-                });
-                if (user?.password === password) {
-                  dispatch(login());
-                } else {
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1, backgroundColor: "yellow", height: 200 }}
+    >
+      <View style={styles.container}>
+        <View style={styles.backgroundContainer} />
+        <LinearGradient
+          style={styles.gradientContainer}
+          colors={[
+            "#FA8989",
+            "rgba(123, 143, 250, 0.51)",
+            "rgba(0, 43, 92, 0)",
+          ]}
+          locations={[0.0087, 0.4479, 0.75]}
+        >
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>{"Optimiser"}</Text>
+          </View>
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../../assets/login.png")}
+              style={styles.image}
+            />
+          </View>
+          <Formik
+            initialValues={{ email: inputs.email, password: inputs.password }}
+            validationSchema={validationSchema}
+            onSubmit={async (values, formikActions) => {
+              const { email, password } = values;
+              const users = await getUsers();
+              if (!email || !password) {
+                if (!users) {
                   Toast.show({
                     type: "error",
-                    text1: "Invalid credentials",
-                    text2: "Please check your email and password",
+                    text1: "Please fill both fields",
+                    text2: "Email and Password are required!",
                   });
                 }
+              } else {
+                if (!users) {
+                  Toast.show({
+                    type: "error",
+                    text1: "No users found",
+                    text2: "Please register a user first!",
+                  });
+                } else {
+                  const user = users.find((e) => {
+                    return e.email === email;
+                  });
+                  if (user?.password === password) {
+                    dispatch(login());
+                  } else {
+                    Toast.show({
+                      type: "error",
+                      text1: "Invalid credentials",
+                      text2: "Please check your email and password",
+                    });
+                  }
+                }
               }
-            }
-            formikActions.resetForm();
-          }}
-        >
-          {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
-            return (
-              <>
-                <View style={styles.headerContainer}>
-                  <Text style={styles.headerText}>{"Optimiser"}</Text>
-                </View>
-                <View style={styles.imageContainer}>
-                  <Image
-                    source={require("../../assets/login.png")}
-                    style={styles.image}
+              formikActions.resetForm();
+            }}
+          >
+            {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
+              return (
+                <>
+                  <AppAuthTextInput
+                    error={errors.email}
+                    accessible={true}
+                    accessibilityLabel={
+                      stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
+                    }
+                    accessibilityHint={
+                      stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT
+                    }
+                    placeholder="Email"
+                    placeholderTextColor="#FFFFFF"
+                    value={values.email}
+                    onBlur={handleBlur("email")}
+                    onChangeText={handleChange("email")}
                   />
-                </View>
-                <AppAuthTextInput
-                  error={errors.email}
-                  accessible={true}
-                  accessibilityLabel={
-                    stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
-                  }
-                  accessibilityHint={stringUtils.LOGIN_SCREEN_EMAIL_INPUT_HINT}
-                  placeholder="Email"
-                  placeholderTextColor="#FFFFFF"
-                  value={values.email}
-                  onBlur={handleBlur("email")}
-                  onChangeText={handleChange("email")}
-                />
-                <AppAuthTextInput
-                  error={errors.password}
-                  accessible={true}
-                  accessibilityLabel={
-                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
-                  }
-                  accessibilityHint={
-                    stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT
-                  }
-                  placeholder="Password"
-                  placeholderTextColor="#FFFFFF"
-                  style={styles.textInput}
-                  value={values.password}
-                  onBlur={handleBlur("password")}
-                  onChangeText={handleChange("password")}
-                  secureTextEntry
-                />
+                  <AppAuthTextInput
+                    error={errors.password}
+                    accessible={true}
+                    accessibilityLabel={
+                      stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
+                    }
+                    accessibilityHint={
+                      stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_HINT
+                    }
+                    placeholder="Password"
+                    placeholderTextColor="#FFFFFF"
+                    style={styles.textInput}
+                    value={values.password}
+                    onBlur={handleBlur("password")}
+                    onChangeText={handleChange("password")}
+                    secureTextEntry
+                  />
+                  <Pressable
+                    accessible={true}
+                    accessibilityLabel={
+                      stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
+                    }
+                    accessibilityHint={
+                      stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT
+                    }
+                    onPress={() => {
+                      formButtonScale.value = withSequence(
+                        withSpring(1.05, {
+                          damping: 1,
+                          overshootClamping: true,
+                        }),
+                        withSpring(1, { damping: 1, overshootClamping: true })
+                      );
 
-                <Pressable
-                  accessible={true}
-                  accessibilityLabel={
-                    stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE
-                  }
-                  accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-                  onPress={() => {
-                    formButtonScale.value = withSequence(
-                      withSpring(1.05, { damping: 1, overshootClamping: true }),
-                      withSpring(1, { damping: 1, overshootClamping: true })
-                    );
-
-                    handleSubmit();
-                  }}
-                >
-                  <Animated.View
-                    style={[styles.formButton, formButtonAnimatedStyle]}
+                      handleSubmit();
+                    }}
                   >
-                    <Text style={styles.buttonText}>{"Login"}</Text>
-                  </Animated.View>
-                </Pressable>
-                <View style={styles.textWrapper}>
-                  <Text style={styles.textStyle}>
-                    {"Do not have an account?"}
-                  </Text>
-                  <Pressable onPress={handleGotoRegister}>
-                    <Text style={styles.registerText}>{"Register"}</Text>
+                    <Animated.View
+                      style={[styles.formButton, formButtonAnimatedStyle]}
+                    >
+                      <Text style={styles.buttonText}>{"Login"}</Text>
+                    </Animated.View>
                   </Pressable>
-                </View>
-              </>
-            );
-          }}
-        </Formik>
-      </LinearGradient>
-    </View>
+                  <View style={styles.textWrapper}>
+                    <Text style={styles.textStyle}>
+                      {"Do not have an account?"}
+                    </Text>
+                    <Pressable onPress={handleGotoRegister}>
+                      <Text style={styles.registerText}>{"Register"}</Text>
+                    </Pressable>
+                  </View>
+                </>
+              );
+            }}
+          </Formik>
+        </LinearGradient>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -206,17 +223,17 @@ const { width, height } = Dimensions.get("window");
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
-      flex: 1,
-      justifyContent: "flex-end",
+      // flex: 1,
+      // justifyContent: "flex-end",
     },
     gradientContainer: {
-      position: "absolute",
-      left: 0,
-      right: 0,
-      top: 0,
-      flex: 1,
+      // position: "absolute",
+      // left: 0,
+      // right: 0,
+      // top: 0,
+      // flex: 1,
       //   height: 500,
-      zIndex: 2,
+      // zIndex: 2,
     },
     backgroundContainer: {
       height: height,
@@ -259,7 +276,6 @@ const themeStyles = (theme: theme) =>
       justifyContent: "center",
       marginTop: 0.02 * height,
     },
-
     textWrapper: {
       justifyContent: "center",
       alignItems: "center",

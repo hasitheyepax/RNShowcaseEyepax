@@ -7,6 +7,8 @@ import {
   TextInput,
   Pressable,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -54,60 +56,69 @@ const LoginScreen = (props: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.backgroundContainer}></View>
-      <LinearGradient
-        style={styles.gradientContainer}
-        colors={["#FA8989", "rgba(123, 143, 250, 0.51)", "rgba(0, 43, 92, 0)"]}
-        locations={[0.0087, 0.4479, 0.75]}
-      >
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../../assets/splash-new.png")}
-            style={styles.image}
-          />
-        </View>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>{"Optimiser"}</Text>
-        </View>
-        <Pressable
-          accessible={true}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-          onPress={() => {
-            formButtonScale.value = withSequence(
-              withSpring(1.05, { damping: 1, overshootClamping: true }),
-              withSpring(1, { damping: 1, overshootClamping: true })
-            );
-
-            handleGotoLogin();
-          }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View style={styles.container}>
+        <View style={styles.backgroundContainer}></View>
+        <LinearGradient
+          style={styles.gradientContainer}
+          colors={[
+            "#FA8989",
+            "rgba(123, 143, 250, 0.51)",
+            "rgba(0, 43, 92, 0)",
+          ]}
+          locations={[0.0087, 0.4479, 0.75]}
         >
-          <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
-            <Text style={styles.buttonText}>{"Login"}</Text>
-          </Animated.View>
-        </Pressable>
-        <Pressable
-          accessible={true}
-          accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
-          accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
-          onPress={() => {
-            formButtonScale.value = withSequence(
-              withSpring(1.05, { damping: 1, overshootClamping: true }),
-              withSpring(1, { damping: 1, overshootClamping: true })
-            );
+          <View style={styles.imageContainer}>
+            <Image
+              source={require("../../assets/splash-new.png")}
+              style={styles.image}
+            />
+          </View>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>{"Optimiser"}</Text>
+          </View>
+          <Pressable
+            accessible={true}
+            accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
+            accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
+            onPress={() => {
+              formButtonScale.value = withSequence(
+                withSpring(1.05, { damping: 1, overshootClamping: true }),
+                withSpring(1, { damping: 1, overshootClamping: true })
+              );
 
-            handleGotoRegister();
-          }}
-        >
-          <Animated.View
-            style={[styles.formButtonRegister, formButtonAnimatedStyle]}
+              handleGotoLogin();
+            }}
           >
-            <Text style={styles.buttonText}>{"Register"}</Text>
-          </Animated.View>
-        </Pressable>
-      </LinearGradient>
-    </View>
+            <Animated.View style={[styles.formButton, formButtonAnimatedStyle]}>
+              <Text style={styles.buttonText}>{"Login"}</Text>
+            </Animated.View>
+          </Pressable>
+          <Pressable
+            accessible={true}
+            accessibilityLabel={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_LABLE}
+            accessibilityHint={stringUtils.LOGIN_SCREEN_LOGIN_BUTTON_HINT}
+            onPress={() => {
+              formButtonScale.value = withSequence(
+                withSpring(1.05, { damping: 1, overshootClamping: true }),
+                withSpring(1, { damping: 1, overshootClamping: true })
+              );
+
+              handleGotoRegister();
+            }}
+          >
+            <Animated.View
+              style={[styles.formButtonRegister, formButtonAnimatedStyle]}
+            >
+              <Text style={styles.buttonText}>{"Register"}</Text>
+            </Animated.View>
+          </Pressable>
+        </LinearGradient>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
