@@ -8,9 +8,9 @@ const Primary: FC = (): JSX.Element => {
   const isLoggedIn = useAppSelector(selectAuth);
 
   if (isLoggedIn) {
-    return User();
+    return <User />;
   } else {
-    return Auth();
+    return <Auth />;
   }
 };
 
