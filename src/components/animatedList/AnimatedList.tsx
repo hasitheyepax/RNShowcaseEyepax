@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Pressable,
   Share,
+  Dimensions,
 } from "react-native";
 import React, {
   Dispatch,
@@ -37,11 +38,16 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { localTask } from "../../config/types/localTask";
 import { timeStampToLocal } from "../../helpers/timeHelpers";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { removeTask } from "../../redux/slices/taskSlice";
+import {
+  markTaskDone,
+  markTaskUndone,
+  removeTask,
+} from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import stringUtils from "../../utils/stringUtils";
 import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
 import * as Sharing from "expo-sharing";
+import moment from "moment";
 
 type renderItemProps = {
   item: localTask;
@@ -136,6 +142,19 @@ const AnimatedList: React.FC<Props> = (props) => {
     };
     const url = "com.app.RNShowcaseEyepax";
 
+    const handleMarkAs = () => {
+      if (!item.completed) {
+        const newTask: localTask = {
+          ...item,
+          completed: true,
+          completedTimestamp: moment.now(),
+        };
+        dispatch(markTaskDone(newTask));
+      } else {
+        dispatch(markTaskUndone(item));
+      }
+    };
+
     return (
       <GestureHandlerRootView>
         <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
@@ -155,6 +174,21 @@ const AnimatedList: React.FC<Props> = (props) => {
                 <Text style={styles.descriptionText}>{item.description}</Text>
               )}
               <View style={styles.timestamp}>
+                {item.completed && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialIcons
+                      name="done"
+                      size={24}
+                      color={styles.regularText.color}
+                    />
+                  </View>
+                )}
                 <Text style={styles.regularText}>
                   {`${timeStampToLocal(item.createdTimestamp)}`}
                 </Text>
@@ -190,12 +224,31 @@ const AnimatedList: React.FC<Props> = (props) => {
                   />
                 </Pressable>
               </View>
-              <Animated.View
-                style={[styles.editContainer, animatedEditContainerStyle]}
-                onTouchEnd={handleEditTouch}
+              <View
+                style={{
+                  flexDirection: "row",
+                  position: "absolute",
+                  left: 0,
+                  bottom: 0,
+                }}
               >
-                <Text style={styles.editText}>{`Edit`}</Text>
-              </Animated.View>
+                <Animated.View
+                  style={[styles.editContainer, animatedEditContainerStyle]}
+                  onTouchEnd={handleEditTouch}
+                >
+                  <Text style={styles.editText}>{`Edit`}</Text>
+                </Animated.View>
+                {item.type === "todo" && (
+                  <Animated.View
+                    style={[styles.todoContainer, animatedEditContainerStyle]}
+                    onTouchEnd={handleMarkAs}
+                  >
+                    <Text style={styles.editText}>
+                      {item?.completed ? "Mark as undone" : "Mark as done"}
+                    </Text>
+                  </Animated.View>
+                )}
+              </View>
             </Animated.View>
           </Swipeable>
         </TouchableOpacity>
@@ -284,11 +337,20 @@ const themeStyles = (theme: theme) =>
     editContainer: {
       flexDirection: "row",
       backgroundColor: theme.colors.secondary,
-      position: "absolute",
       bottom: 0,
       left: 0,
       borderBottomLeftRadius: 20,
       padding: 10,
+    },
+    todoContainer: {
+      flexDirection: "row",
+      backgroundColor: theme.colors.card,
+      bottom: 0,
+      left: 0,
+      padding: 10,
+      justifyContent: "center",
+      marginLeft: 5,
+      width: Dimensions.get("window").width * 0.4,
     },
     editText: {
       color: theme.colors.text,
