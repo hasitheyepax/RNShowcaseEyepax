@@ -29,7 +29,10 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { Swipeable } from "react-native-gesture-handler";
+import {
+  GestureHandlerRootView,
+  Swipeable,
+} from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
 import { localTask } from "../../config/types/localTask";
 import { timeStampToLocal } from "../../helpers/timeHelpers";
@@ -134,65 +137,69 @@ const AnimatedList: React.FC<Props> = (props) => {
     const url = "com.app.RNShowcaseEyepax";
 
     return (
-      <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
-        <Swipeable
-          renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
-        >
-          <Animated.View
-            style={[styles.listItem, animatedStyle]}
-            entering={initialMode.current ? FadeIn.delay(100 * index) : FadeIn}
-            exiting={FadeOut}
-            onTouchEnd={undefined}
+      <GestureHandlerRootView>
+        <TouchableOpacity activeOpacity={1} onPress={handleTouch}>
+          <Swipeable
+            renderRightActions={swipeToDeleteEnabled ? RightAction : undefined}
           >
-            <Text style={styles.titleText}>{item.title}</Text>
-            {item.description && (
-              <Text style={styles.descriptionText}>{item.description}</Text>
-            )}
-            <View style={styles.timestamp}>
-              <Text style={styles.regularText}>
-                {`${timeStampToLocal(item.createdTimestamp)}`}
-              </Text>
-            </View>
-            <View style={styles.icon}>
-              <Pressable
-                onPress={
-                  handleShareTouch
-
-                  // () => {
-
-                  // Share.share(
-                  //   {
-                  //     message: "ABCD" + "\n" + url,
-                  //     url: "http://www.google.com",
-                  //     title: "this is abcd",
-                  //   },
-                  //   {
-                  //     dialogTitle: "abcd dialog title",
-                  //     excludedActivityTypes: [
-                  //       "com.apple.UIKit.activity.PostToTwitter",
-                  //     ],
-                  //   }
-                  // );
-                  // console.log(item);
-                  // }
-                }
-              >
-                <SimpleLineIcons
-                  name="share"
-                  size={20}
-                  color={theme.colors.background}
-                />
-              </Pressable>
-            </View>
             <Animated.View
-              style={[styles.editContainer, animatedEditContainerStyle]}
-              onTouchEnd={handleEditTouch}
+              style={[styles.listItem, animatedStyle]}
+              entering={
+                initialMode.current ? FadeIn.delay(100 * index) : FadeIn
+              }
+              exiting={FadeOut}
+              onTouchEnd={undefined}
             >
-              <Text style={styles.editText}>{`Edit`}</Text>
+              <Text style={styles.titleText}>{item.title}</Text>
+              {item.description && (
+                <Text style={styles.descriptionText}>{item.description}</Text>
+              )}
+              <View style={styles.timestamp}>
+                <Text style={styles.regularText}>
+                  {`${timeStampToLocal(item.createdTimestamp)}`}
+                </Text>
+              </View>
+              <View style={styles.icon}>
+                <Pressable
+                  onPress={
+                    handleShareTouch
+
+                    // () => {
+
+                    // Share.share(
+                    //   {
+                    //     message: "ABCD" + "\n" + url,
+                    //     url: "http://www.google.com",
+                    //     title: "this is abcd",
+                    //   },
+                    //   {
+                    //     dialogTitle: "abcd dialog title",
+                    //     excludedActivityTypes: [
+                    //       "com.apple.UIKit.activity.PostToTwitter",
+                    //     ],
+                    //   }
+                    // );
+                    // console.log(item);
+                    // }
+                  }
+                >
+                  <SimpleLineIcons
+                    name="share"
+                    size={20}
+                    color={theme.colors.background}
+                  />
+                </Pressable>
+              </View>
+              <Animated.View
+                style={[styles.editContainer, animatedEditContainerStyle]}
+                onTouchEnd={handleEditTouch}
+              >
+                <Text style={styles.editText}>{`Edit`}</Text>
+              </Animated.View>
             </Animated.View>
-          </Animated.View>
-        </Swipeable>
-      </TouchableOpacity>
+          </Swipeable>
+        </TouchableOpacity>
+      </GestureHandlerRootView>
     );
   };
 
