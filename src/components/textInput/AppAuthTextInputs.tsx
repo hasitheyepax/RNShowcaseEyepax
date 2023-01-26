@@ -10,7 +10,7 @@ import React from "react";
 import { BlurView } from "expo-blur";
 
 interface AppAuthTextInputProps extends TextInputProps {
-  error?: string;
+  error?: string | boolean | undefined;
 }
 
 const AppAuthTextInput: React.FC<AppAuthTextInputProps> = (props) => {
