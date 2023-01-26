@@ -125,11 +125,18 @@ const RegisterScreen = (props: Props) => {
             formikActions.resetForm();
           }}
         >
-          {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          }) => {
             return (
               <View style={styles.inputs}>
                 <AppAuthTextInput
-                  error={errors.email}
+                  error={touched.email && errors.email}
                   accessible={true}
                   accessibilityLabel={
                     stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
@@ -166,7 +173,7 @@ const RegisterScreen = (props: Props) => {
                 </View> */}
 
                 <AppAuthTextInput
-                  error={errors.fullName}
+                  error={touched.fullName && errors.fullName}
                   accessible={true}
                   accessibilityLabel={
                     stringUtils.LOGIN_SCREEN_FULL_NAME_INPUT_LABLE
@@ -205,7 +212,7 @@ const RegisterScreen = (props: Props) => {
                 </View> */}
 
                 <AppAuthTextInput
-                  error={errors.password}
+                  error={touched.password && errors.password}
                   accessible={true}
                   accessibilityLabel={
                     stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE

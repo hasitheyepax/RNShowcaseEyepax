@@ -57,8 +57,8 @@ const LoginScreen = (props: Props) => {
   const formButtonScale = useSharedValue(1);
 
   const [inputs, setInputs] = useState({
-    email: "",
-    password: "",
+    email: undefined,
+    password: undefined,
   });
 
   const styles = themeStyles(theme);
@@ -134,11 +134,18 @@ const LoginScreen = (props: Props) => {
             formikActions.resetForm();
           }}
         >
-          {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          }) => {
             return (
               <View style={styles.inputs}>
                 <AppAuthTextInput
-                  error={errors.email}
+                  error={touched.email && errors.email}
                   accessible={true}
                   accessibilityLabel={
                     stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE
@@ -151,7 +158,7 @@ const LoginScreen = (props: Props) => {
                   onChangeText={handleChange("email")}
                 />
                 <AppAuthTextInput
-                  error={errors.password}
+                  error={touched.password && errors.password}
                   accessible={true}
                   accessibilityLabel={
                     stringUtils.LOGIN_SCREEN_PASSWORD_INPUT_LABLE
