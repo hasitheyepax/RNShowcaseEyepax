@@ -17,6 +17,7 @@ import { useAppDispatch } from "../redux/hooks";
 import { logout } from "../redux/slices/authSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
+import EditProfile from "../components/modals/EditProfile";
 
 type Props = {};
 
@@ -26,6 +27,7 @@ const Profile = (props: Props) => {
   const { theme } = useContext(ThemeContext);
   const [userDetails, setUserDetails] = useState({});
   const [image, setImage] = useState("");
+  const [editVisible, setEditVisible] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -60,7 +62,15 @@ const Profile = (props: Props) => {
     }
   };
 
-  const handleGotoSettings = () => {};
+  const handleGotoSettings = () => {
+    setEditVisible(true);
+  };
+  const handleEditOnSubmit = () => {
+    setEditVisible(false);
+  };
+  const handleEditOnCancel = () => {
+    setEditVisible(false);
+  };
 
   const styles = themeStyles(theme);
 
@@ -148,6 +158,16 @@ const Profile = (props: Props) => {
         ]}
         locations={[0, 0.3385, 1]}
       >
+        <EditProfile
+          visible={editVisible}
+          onSubmit={handleEditOnSubmit}
+          onCancel={handleEditOnCancel}
+          item={{
+            email: "isuru.r@eyepax.com",
+            fullName: "Isuru Ranapana",
+            password: "111111111",
+          }}
+        />
         <Header />
         <ProfileContent />
       </LinearGradient>
