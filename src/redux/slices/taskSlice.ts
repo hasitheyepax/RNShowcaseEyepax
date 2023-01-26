@@ -28,10 +28,27 @@ export const taskSlice = createSlice({
         }
       });
     },
+    markTaskDone: (state, action: PayloadAction<localTask>) => {
+      state.tasks.map((task) => {
+        if (task.id === action.payload.id) {
+          task.completedTimestamp = action.payload.completedTimestamp;
+          task.completed = action.payload.completed;
+        }
+      });
+    },
+    markTaskUndone: (state, action: PayloadAction<localTask>) => {
+      state.tasks.map((task) => {
+        if (task.id === action.payload.id) {
+          task.completedTimestamp = undefined;
+          task.completed = false;
+        }
+      });
+    },
   },
 });
 
-export const { addTask, removeTask, updateTask } = taskSlice.actions;
+export const { addTask, removeTask, updateTask, markTaskDone, markTaskUndone } =
+  taskSlice.actions;
 
 export const selectTasks = (state: RootState) => state.task.tasks;
 
