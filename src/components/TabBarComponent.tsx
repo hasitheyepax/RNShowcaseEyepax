@@ -1,5 +1,5 @@
 import { BottomTabNavigationOptions } from "@react-navigation/bottom-tabs";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import {
   LayoutChangeEvent,
   Pressable,
@@ -11,6 +11,8 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import { theme } from "../config/colors";
+import ThemeContext from "../contexts/themeContext";
 
 type TabBarComponentProps = {
   active?: boolean;
@@ -26,6 +28,10 @@ export default function TabBarComponent({
   onPress,
 }: TabBarComponentProps) {
   const ref = useRef(null);
+
+  const { theme } = useContext(ThemeContext);
+
+  const styles = themeStyles(theme);
 
   useEffect(() => {
     if (active && ref?.current) {
@@ -69,29 +75,30 @@ export default function TabBarComponent({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    height: 60,
-    width: 60,
-    marginTop: -5,
-  },
-  text: {
-    color: "#000",
-    fontSize: 18,
-    textAlign: "center",
-  },
-  componentCircle: {
-    flex: 1,
-    borderRadius: 30,
-    backgroundColor: "white",
-  },
-  iconContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
+const themeStyles = (theme: theme) =>
+  StyleSheet.create({
+    container: {
+      height: 60,
+      width: 60,
+      marginTop: -5,
+    },
+    text: {
+      color: "#000",
+      fontSize: 18,
+      textAlign: "center",
+    },
+    componentCircle: {
+      flex: 1,
+      borderRadius: 30,
+      backgroundColor: theme.colors.bottomTabsBackground,
+    },
+    iconContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+  });
