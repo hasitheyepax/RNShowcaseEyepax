@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useContext, useReducer } from "react";
 import { LayoutChangeEvent, StyleSheet, Text, View } from "react-native";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,6 +10,8 @@ import Animated, {
 } from "react-native-reanimated";
 import Svg, { Path } from "react-native-svg";
 import Background from "./assets/Background";
+import ThemeContext from "../contexts/themeContext";
+import { theme } from "../config/colors";
 
 const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
@@ -19,6 +21,8 @@ export default function AnimatedTabBar({
   descriptors,
 }: BottomTabBarProps) {
   const { bottom } = useSafeAreaInsets();
+
+  const { theme } = useContext(ThemeContext);
 
   const reducer = (state: any, action: { x: number; index: number }) => {
     return [...state, { x: action.x, index: action.index }];
@@ -49,6 +53,8 @@ export default function AnimatedTabBar({
     };
   });
 
+  const styles = themeStyles(theme);
+
   return (
     <View style={[styles.container, { paddingBottom: bottom }]}>
       <AnimatedSvg
@@ -57,7 +63,7 @@ export default function AnimatedTabBar({
         viewBox="0 0 110 60"
         style={[styles.activeBackground, animatedStyles]}
       >
-        <Background color="#FA8989" />
+        <Background color={theme.colors.mainBackground} />
       </AnimatedSvg>
 
       <View style={styles.tabBarContainer}>
@@ -80,15 +86,16 @@ export default function AnimatedTabBar({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#FFF",
-  },
-  activeBackground: {
-    position: "absolute",
-  },
-  tabBarContainer: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-  },
-});
+const themeStyles = (theme: theme) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: "#FFF",
+    },
+    activeBackground: {
+      position: "absolute",
+    },
+    tabBarContainer: {
+      flexDirection: "row",
+      justifyContent: "space-evenly",
+    },
+  });

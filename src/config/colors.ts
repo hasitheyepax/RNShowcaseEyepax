@@ -5,6 +5,7 @@ export type colorsType = {
   text: string;
   rawText: string;
   background: string;
+  mainBackground: string;
 };
 
 export type theme = {
@@ -19,6 +20,7 @@ export const darkTheme: theme = {
     text: "#E5B7F5",
     rawText: "#FFF",
     background: "#82AAE3",
+    mainBackground: "#810CAA",
   },
 };
 export const lightTheme: theme = {
@@ -29,6 +31,7 @@ export const lightTheme: theme = {
     text: "#E5B7F5",
     rawText: "#FFF",
     background: "#82AAE3",
+    mainBackground: "#FA8989",
   },
 };
 
