@@ -129,7 +129,7 @@ const themeStyles = (theme: theme) =>
     bottom: {
       height: height,
       width: width,
-      backgroundColor: "#FA8989",
+      backgroundColor: theme.colors.mainBackground,
       position: "absolute",
     },
   });
