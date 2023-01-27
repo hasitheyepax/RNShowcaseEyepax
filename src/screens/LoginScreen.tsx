@@ -121,7 +121,7 @@ const LoginScreen = (props: Props) => {
                   return e.email === email;
                 });
                 if (user?.password === password) {
-                  dispatch(login());
+                  dispatch(login(email));
                 } else {
                   Toast.show({
                     type: "error",
