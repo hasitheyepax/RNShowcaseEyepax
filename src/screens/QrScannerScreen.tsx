@@ -18,6 +18,7 @@ import { useAppDispatch } from "../redux/hooks";
 import { addTask } from "../redux/slices/taskSlice";
 import { v4 as uuidv4 } from "uuid";
 import moment from "moment";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 const QrScannerScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -59,6 +60,11 @@ const QrScannerScreen = () => {
     } catch (error) {
       console.log("scan failed");
     }
+    Toast.show({
+      type: "success",
+      text1: "Task Added Successfully",
+      text2: "Go to home screen, you can see the added task",
+    });
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
 
