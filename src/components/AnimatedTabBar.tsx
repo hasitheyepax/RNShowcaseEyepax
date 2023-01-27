@@ -89,7 +89,7 @@ export default function AnimatedTabBar({
 const themeStyles = (theme: theme) =>
   StyleSheet.create({
     container: {
-      backgroundColor: "#FFF",
+      backgroundColor: theme.colors.bottomTabsBackground,
     },
     activeBackground: {
       position: "absolute",
