@@ -45,7 +45,10 @@ import {
 } from "../../redux/slices/taskSlice";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import stringUtils from "../../utils/stringUtils";
-import { selectSwipeToDeleteEnabled } from "../../redux/slices/settingsSlice";
+import {
+  selectSwipeToDeleteEnabled,
+  selectShowCompletedTodosEnabled,
+} from "../../redux/slices/settingsSlice";
 import * as Sharing from "expo-sharing";
 import moment from "moment";
 
@@ -68,6 +71,9 @@ const AnimatedList: React.FC<Props> = (props) => {
   const { theme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
   const swipeToDeleteEnabled = useAppSelector(selectSwipeToDeleteEnabled);
+  const showCompletedTodosEnabled = useAppSelector(
+    selectShowCompletedTodosEnabled
+  );
 
   const styles = themeStyles(theme);
 
@@ -83,6 +89,9 @@ const AnimatedList: React.FC<Props> = (props) => {
 
   const RenderItem = (props: renderItemProps) => {
     const { index, item } = props;
+
+    if (item.completed && !showCompletedTodosEnabled) return;
+
     const [active, setActive] = useState(false);
 
     const height = useSharedValue(120);
