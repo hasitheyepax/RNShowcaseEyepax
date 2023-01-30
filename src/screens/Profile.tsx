@@ -9,15 +9,18 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ThemeContext from "../contexts/themeContext";
 import { theme } from "../config/colors";
 import * as ImagePicker from "expo-image-picker";
-import { useAppDispatch } from "../redux/hooks";
-import { logout } from "../redux/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { logout, selectAuthEmail } from "../redux/slices/authSlice";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import EditProfile from "../components/modals/EditProfile";
+import { editUser, getUsers } from "../helpers/asyncStorage";
+import { user } from "../config/types/user";
+import { useIsFocused } from "@react-navigation/native";
 
 type Props = {};
 
@@ -25,13 +28,30 @@ const { height, width } = Dimensions.get("window");
 
 const Profile = (props: Props) => {
   const { theme } = useContext(ThemeContext);
-  const [userDetails, setUserDetails] = useState({});
+  const [userDetails, setUserDetails] = useState<user>();
+  const [userDetailsEdited, setUserDetailsEdited] = useState<user>();
   const [image, setImage] = useState("");
   const [editVisible, setEditVisible] = useState(false);
 
   const dispatch = useAppDispatch();
+  const userEmail = useAppSelector(selectAuthEmail);
+  const isFocused = useIsFocused();
 
-  const getProfileDetails = async () => {};
+  useEffect(() => {
+    getProfileDetails();
+  }, [isFocused]);
+
+  const getProfileDetails = async () => {
+    const users = await getUsers();
+    if (users) {
+      const user = users.find((e) => {
+        return e.email === userEmail.payload;
+      });
+      if (user) {
+        setUserDetails(user);
+      }
+    }
+  };
 
   const Header: React.FC = () => {
     return (
@@ -65,8 +85,12 @@ const Profile = (props: Props) => {
   const handleGotoSettings = () => {
     setEditVisible(true);
   };
-  const handleEditOnSubmit = () => {
-    setEditVisible(false);
+  const handleEditOnSubmit = async () => {
+    // console.log(userDetailsEdited);
+    // await editUser(userDetailsEdited);
+    await getProfileDetails().then(() => {
+      setEditVisible(false);
+    });
   };
   const handleEditOnCancel = () => {
     setEditVisible(false);
@@ -99,8 +123,8 @@ const Profile = (props: Props) => {
             </View>
           </View>
           <View style={styles.detailsContainer}>
-            <Text style={styles.nameText}>Isuru Ranapana</Text>
-            <Text style={styles.emailText}>isuru.r@eyepax.com</Text>
+            <Text style={styles.nameText}>{userDetails?.fullName}</Text>
+            <Text style={styles.emailText}>{userDetails?.email}</Text>
           </View>
           <View style={{ marginTop: 50 }}>
             <BlurView style={styles.blurView}>
@@ -162,11 +186,8 @@ const Profile = (props: Props) => {
           visible={editVisible}
           onSubmit={handleEditOnSubmit}
           onCancel={handleEditOnCancel}
-          item={{
-            email: "isuru.r@eyepax.com",
-            fullName: "Isuru Ranapana",
-            password: "111111111",
-          }}
+          item={userDetails}
+          setUserDetailsEdited={setUserDetailsEdited}
         />
         <Header />
         <ProfileContent />

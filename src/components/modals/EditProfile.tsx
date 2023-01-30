@@ -5,7 +5,7 @@ import {
   Text,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import ModalButton from "./ModalButton";
 import * as Yup from "yup";
 import { Formik } from "formik";
@@ -15,12 +15,14 @@ import { user } from "../../config/types/user";
 import AppAuthTextInput from "../textInput/AppAuthTextInputs";
 import stringUtils from "../../utils/stringUtils";
 import AppTextInput from "../textInput/AppTextInput";
+import { editUser } from "../../helpers/asyncStorage";
 
 interface Props {
   visible: boolean;
   onCancel: Function;
   onSubmit: Function;
   item?: user | null;
+  setUserDetailsEdited: Dispatch<SetStateAction<user | undefined>>;
 }
 
 const validationSchema = Yup.object({
@@ -33,7 +35,7 @@ const validationSchema = Yup.object({
 });
 
 const EditProfile: React.FC<Props> = (props) => {
-  let { visible, onCancel, onSubmit, item } = props;
+  let { visible, onCancel, onSubmit, item, setUserDetailsEdited } = props;
   const dispatch = useAppDispatch();
 
   return (
@@ -50,11 +52,26 @@ const EditProfile: React.FC<Props> = (props) => {
           }}
           // enableReinitialize
           validationSchema={validationSchema}
-          onSubmit={(values) => {
-            if (item) {
-            } else {
-            }
-            onSubmit();
+          onSubmit={async (values) => {
+            const { email, fullName, password } = values;
+            // setUserDetailsEdited({
+            //   @ts-ignore
+            //   email: item?.email,
+            //   fullName: fullName,
+            //   //@ts-ignore
+            //   password: item?.password,
+            // });
+            await editUser({
+              //@ts-ignore
+
+              email: item?.email,
+              fullName: fullName,
+              //@ts-ignore
+
+              password: item?.password,
+            }).then(onSubmit());
+
+            // onSubmit();
           }}
         >
           {({ values, errors, handleChange, handleBlur, handleSubmit }) => {
@@ -66,6 +83,7 @@ const EditProfile: React.FC<Props> = (props) => {
                   <AppTextInput
                     label="Email"
                     error={errors.email}
+                    editable={false}
                     accessible={true}
                     accessibilityLabel={
                       stringUtils.LOGIN_SCREEN_EMAIL_INPUT_LABLE

@@ -82,6 +82,17 @@ const addUser = async (user: user) => {
   }
 };
 
+const editUser = async (user: user) => {
+  const users = await getUsers();
+  users?.map((item, index) => {
+    if (item.email === user.email) item.fullName = user.fullName;
+  });
+  const dataSet = {
+    users: users,
+  };
+  await storeData(dataSet);
+};
+
 const getNotes = async (): Promise<[note] | null> => {
   const data = await getNoteData();
   if (data) {
@@ -150,4 +161,5 @@ export {
   addNote,
   getTodos,
   addTodo,
+  editUser,
 };
