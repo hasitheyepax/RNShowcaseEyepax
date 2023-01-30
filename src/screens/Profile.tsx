@@ -88,7 +88,9 @@ const Profile = (props: Props) => {
   const handleEditOnSubmit = async () => {
     // console.log(userDetailsEdited);
     // await editUser(userDetailsEdited);
-    setEditVisible(false);
+    await getProfileDetails().then(() => {
+      setEditVisible(false);
+    });
   };
   const handleEditOnCancel = () => {
     setEditVisible(false);
